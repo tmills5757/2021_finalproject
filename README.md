@@ -1,7 +1,7 @@
 # Team Name
 
 ### Team Members
-
+2. Jacob Yurek
 ### Final Proposal
 1. Persona/Scenario
     1. Persona
