@@ -45,16 +45,14 @@ Hover: Resymbolize, preferred or selected routes turn highlighted.
 
 Lo-fi Wireframes
 Wireframes:
-Home screen displaying initial map and tooltip
-Home screen displaying initial map without tooltip
-Basemap for:
-Weekday bus routes
-Weekend bus routes
-Holiday bus routes
-Highlighted bus route
-Bus stop and destinations
-Destination and bus stops
-
+![Home screen displaying initial map and tooltip](img/Home_screen_tooltip.png)
+![Home screen displaying initial map without tooltip](img/Home_screen_no_tooltip.png)
+![Base map for weekday bus routes](img/Basemap_weekday.png)
+![Base map for weekend bus routes](img/Basemap_weekend.png)
+![Base map for holiday bus routes](img/Basemap_holidayy.png)
+![Highlighted bus route](img/Bus_route.png)
+![Bus stop and destinations](img/Bus_stop.png)
+![Destination and bus stops](img/Destination.png)
 
 
 
