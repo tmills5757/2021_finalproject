@@ -1,6 +1,5 @@
 //declare basemap variable in global scope
 var basemap;
-
 //create map
 function createMap(){
 
@@ -15,8 +14,7 @@ function createMap(){
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     }).addTo(basemap);
 
-    //call getData function
-    getData(basemap);
+ 
 };
 
 $(document).ready(createMap);
