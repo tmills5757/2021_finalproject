@@ -3,3 +3,12 @@
     width: 100%;
     display: inline-block;
     }
+
+#panel {  
+    width: 25%;  
+    padding: 20px;  
+    display: inline-block;  
+    vertical-align: top;  
+    text-align: center;  
+    line-height: 42px;  
+}  
