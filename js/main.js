@@ -2,18 +2,19 @@
 var basemap;
 //create map
 function createMap(){
-
-    //create the map
-    basemap = L.map('basemap', {
-        center: [43.0731, -89.4012], //centered around coordinates of Madison
-        zoom: 12
-    });
-
-    //add OSM base tilelayer
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {         
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    }).addTo(basemap);
-
+	const basemap = L.map('basemap').setView([43.0731, -89.4012], 12);
+	L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(basemap);
+	const search = new GeoSearch.GeoSearchControl({
+  	provider: new GeoSearch.OpenStreetMapProvider(),
+  	showMarker: false,
+    showPopup: false,
+    retainZoomLevel: true, 
+    animateZoom: false,
+    autoClose: false,
+    searchLabel: 'Enter Search Address',
+    keepResult: false,
+});
+basemap.addControl(search);
  
 };
 
