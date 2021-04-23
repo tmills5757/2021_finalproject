@@ -23,10 +23,10 @@ function createMap(){
 
 	const search = new GeoSearch.GeoSearchControl({
   	provider: new GeoSearch.OpenStreetMapProvider(),
-  	showMarker: false,
+  	showMarker: true,
     showPopup: false,
     retainZoomLevel: true, 
-    animateZoom: false,
+    animateZoom: true,
     autoClose: false,
     searchLabel: 'Enter Search Address',
     keepResult: false,
