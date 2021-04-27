@@ -15,17 +15,9 @@ function createMap(){
 
 	const search = new GeoSearch.GeoSearchControl({
   	provider: new GeoSearch.OpenStreetMapProvider(),
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-      //added marker and popup to highlight search address
+    //added marker and popup to highlight search address
   	showMarker: true,
     showPopup: true,
-=======
->>>>>>> Stashed changes
-  	showMarker: true,
-    showPopup: false,
->>>>>>> 50e39c6c3bc4fccc382871b55eeecd77f91ebfe6
     retainZoomLevel: true, 
     animateZoom: true,
     autoClose: false,
