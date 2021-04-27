@@ -3,14 +3,6 @@ var basemap;
 //create map
 function createMap(){
 
-  /*
-  //create the map
-  basemap = L.map('basemap', {
-    center: [43.0731, -89.4012], //centered around coordinates of Madison
-    zoom: 12
-  });
-  */
-
   basemap = L.map('basemap').setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
 
   //add OSM base tilelayer
@@ -23,8 +15,17 @@ function createMap(){
 
 	const search = new GeoSearch.GeoSearchControl({
   	provider: new GeoSearch.OpenStreetMapProvider(),
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+      //added marker and popup to highlight search address
+  	showMarker: true,
+    showPopup: true,
+=======
+>>>>>>> Stashed changes
   	showMarker: true,
     showPopup: false,
+>>>>>>> 50e39c6c3bc4fccc382871b55eeecd77f91ebfe6
     retainZoomLevel: true, 
     animateZoom: true,
     autoClose: false,
@@ -45,15 +46,26 @@ function getData(basemap){
         success: function(response){
             
             //create an attributes array
-            var attributes = processData(response);
+            var attributes = processStopData(response);
             //add symbols and UI elements
             createBusStops(response, attributes);
+            parseRoutes(response, attributes);
+            $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create an attributes array
+                    var attributes = processRouteData(response);
+                    //add symbols and UI elements
+                    createBusRoutes(response, attributes);
+                }
+            });
         }
     });
+    
 };
 
 //build an attributes array from the data
-function processData(data){
+function processRouteData(data){
     //empty array to hold attributes
     var attributes = [];
 
@@ -62,24 +74,55 @@ function processData(data){
 
     //push each attribute name into attributes array
     for (var attribute in properties){
-        //only take attributes with population values
+        //only take attributes with route values
+        if (attribute.indexOf("route_shor") > -1){
+            attributes.push(attribute);
+        };
+    };
+
+    return attributes;
+};
+
+//build an attributes array from the data
+function processStopData(data){
+    //empty array to hold attributes
+    var attributes = []; 
+
+    //properties of the first feature in the dataset
+    var properties = data.features[0].properties;
+
+    //push each attribute name into attributes array
+    for (var attribute in properties){
+        //only take attributes with stop names
         if (attribute.indexOf("stop_name") > -1){
             attributes.push(attribute);
         };
     };
 
-    //check result
-    console.log(attributes);
-
     return attributes;
+};
+
+//parse routes serving each bus stop
+function parseRoutes(data) {
+    var busStops = []; //create new array holding all the bus stops
+    var servedRoutes; //create new array for routes serving each bus stop
+
+    for (i in data.features) {
+        var stop = data.features[i];
+        servedRoutes = []; 
+        var routes = stop.properties.Route.split(", "); //splits string into multiple routes
+        servedRoutes.push(routes);
+        busStops.push(servedRoutes);
+    }
+    console.log(busStops);
+
+    return busStops;
 };
 
 //function to convert markers to circle markers
 function pointToLayer(feature, latlng, attributes){
     //Assign the current attribute based on the first index of the attributes array
-    var attribute = attributes[3];
-    //check
-    console.log(attribute);
+    var attribute = attributes[0];
 
     //create marker options
     var options = {
@@ -106,12 +149,34 @@ function pointToLayer(feature, latlng, attributes){
 
 //Add circle markers for point features to the map
 function createBusStops(data, attributes){
+
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         }
     }).addTo(basemap);
+
+};
+
+//Add bus routes to map
+function createBusRoutes(data){
+    //create a new array for all the bus routes
+    var busRoutes = [];
+    
+    for (i in data.features) {
+        var route = data.features[i];
+        busRoutes.push(route);
+    }
+
+    var style = {
+        color: "#1f355a",
+        weight: 1,
+        opacity: 1
+    };
+
+    //create a Leaflet GeoJSON layer and add it to the map
+    L.geoJson(busRoutes, {style: style}).addTo(basemap);
 
 };
 
