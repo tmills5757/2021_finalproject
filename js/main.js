@@ -4,10 +4,10 @@ var basemap;
 function createMap(){
 
     basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
-    new L.Control.Zoom({ position: 'topright' }).addTo(basemap);
+    new L.Control.Zoom({ position: 'topleft' }).addTo(basemap);
 
     //add OSM base tilelayer
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {         
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     }).addTo(basemap);
 
@@ -19,7 +19,7 @@ function createMap(){
         // style: 'bar',
         showMarker: true,
         showPopup: true,
-        retainZoomLevel: true, 
+        retainZoomLevel: true,
         animateZoom: true,
         autoClose: false,
         searchLabel: 'Enter Search Address',
@@ -27,7 +27,7 @@ function createMap(){
     });
 
   basemap.addControl(search);
- 
+
 };
 
 
@@ -37,13 +37,17 @@ function getData(basemap){
     $.ajax("data/Metro_Transit_Bus_Stops.geojson", {
         dataType: "json",
         success: function(response){
-            
+
             //create an attributes array
             var attributes = processStopData(response);
             //add symbols and UI elements
             createBusStops(response, attributes);
             parseRoutes(response, attributes);
+            createTitle();
             createPanelControls(attributes);
+            createInfo();
+            createPop();
+
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
                 dataType: "json",
                 success: function(response){
@@ -55,7 +59,7 @@ function getData(basemap){
             });
         }
     });
-    
+
 };
 
 //build an attributes array from the data
@@ -80,7 +84,7 @@ function processRouteData(data){
 //build an attributes array from the data
 function processStopData(data){
     //empty array to hold attributes
-    var attributes = []; 
+    var attributes = [];
 
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
@@ -103,7 +107,7 @@ function parseRoutes(data) {
 
     for (i in data.features) {
         var stop = data.features[i];
-        servedRoutes = []; 
+        servedRoutes = [];
         var routes = stop.properties.Route.split(", "); //splits string into multiple routes
         servedRoutes.push(routes);
         busStops.push(servedRoutes);
@@ -134,7 +138,7 @@ function pointToLayer(feature, latlng, attributes){
 
     var popupContent = createPopupContent(feature.properties, attribute);
 
-    //bind the popup to the circle marker    
+    //bind the popup to the circle marker
     layer.bindPopup(popupContent, {  offset: new L.Point(0,-options.radius)    });
 
     //return the circle marker to the L.geoJson pointToLayer option
@@ -157,7 +161,7 @@ function createBusStops(data, attributes){
 function createBusRoutes(data){
     //create a new array for all the bus routes
     var busRoutes = [];
-    
+
     for (i in data.features) {
         var route = data.features[i];
         busRoutes.push(route);
@@ -188,11 +192,10 @@ function createPopupContent(properties, attribute){
 // 3. Add event handlers for buttons
 // 4. Filter out bus routes and stops outside search criteria
 
-
 //Create new panel controls
-function createPanelControls(attributes){   
+function createPanelControls(attributes){
     var PanelControl = L.Control.extend({
-        options: {
+        options: {//declares position of the legend container
             position: 'topleft'
         },
 
@@ -212,5 +215,71 @@ function createPanelControls(attributes){
 
 };
 
+
+//function to create a title for the map
+function createTitle(){
+
+    var PanelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'topright'
+        },
+        onAdd: function () {
+            // create the control container with a particular class name
+            var container = L.DomUtil.create('div', 'title-control-container');
+            //Add title in the box
+            $(container).append('<div class="temporalLegend">Madison Bus Finder</div>');
+
+            return container;
+        }
+    });
+    //adds previously created variable to the map
+    basemap.addControl(new PanelControl());
+
+};
+
+
+//function to show how to use the map
+function createInfo(){
+
+    var PanelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'topright'
+        },
+
+        onAdd: function () {
+
+            var container = L.DomUtil.create('div', 'infor-control-container');
+            //Add words on how to use the map
+            $(container).append('<div class="temporalLegend">Click on the desired bus route for weekdays, weekend, or holiday.<br>Click on a bus stop along the roads to view the bus schedule and destinations near the stop.<br>Alternatively, search for a destination using the search bar to view bus stops and routes near the destination.</div>');
+
+            return container;
+        }
+    });
+    //adds previously created variable to the map
+    basemap.addControl(new PanelControl());
+
+};
+
+//function to show what the map provides
+function createPop(){
+
+    var PanelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'bottomright'
+        },
+
+        onAdd: function () {
+
+            var container = L.DomUtil.create('div', 'pop-control-container');
+            //Add information of the map
+            $(container).append('<div class="temporalLegend">1. Madison bus line routes and schedules, and locations of bus stops on each route.<br>2. Locations of grocery stores, hospitals, primary care, and social service centers.</div>');
+
+            return container;
+        }
+    });
+    //adds previously created variable to the map
+    basemap.addControl(new PanelControl());
+
+};
 
 $(document).ready(createMap);

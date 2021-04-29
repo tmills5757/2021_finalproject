@@ -1,25 +1,59 @@
-#basemap{    
-    height: 500px;    
+#basemap{
+    height: 900px;
     width: 100%;
     display: inline-block;
     }
 
-#panel {  
-    width: 25%;  
-    padding: 20px;  
-    display: inline-block;  
-    vertical-align: top;  
-    text-align: center;  
-    line-height: 42px;  
-}  
+#panel {
+    width: 25%;
+    padding: 20px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    line-height: 42px;
+}
 
-.panel-control-container {  
-    width: 250px;  
-    height: 400px;  
-    background-color: rgba(255,255,255,0.8);  
-    padding: 10px;  
+.title-control-container {
+    width: 1330px;
+    height: 20px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
     position: relative;
-    line-height: 45px;  
-    text-align: center;  
-    border: solid gray 1px;  
-}  
+    font-size: 300%;
+    line-height: 20px;
+    text-align: center;
+    border: solid gray 5px;
+}
+
+.panel-control-container {
+    width: 250px;
+    height: 400px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    position: relative;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
+
+.infor-control-container {
+    width: 500px;
+    height: 180px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    position: relative;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
+
+.pop-control-container {
+    width: 250px;
+    height: 180px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    position: relative;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
