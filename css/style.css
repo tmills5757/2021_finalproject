@@ -1,5 +1,5 @@
 #basemap{    
-    height: 400px;    
+    height: 500px;    
     width: 100%;
     display: inline-block;
     }
@@ -11,4 +11,15 @@
     vertical-align: top;  
     text-align: center;  
     line-height: 42px;  
+}  
+
+.panel-control-container {  
+    width: 250px;  
+    height: 400px;  
+    background-color: rgba(255,255,255,0.8);  
+    padding: 10px;  
+    position: relative;
+    line-height: 45px;  
+    text-align: center;  
+    border: solid gray 1px;  
 }  

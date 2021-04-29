@@ -3,27 +3,28 @@ var basemap;
 //create map
 function createMap(){
 
-  basemap = L.map('basemap').setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
+    basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
+    new L.Control.Zoom({ position: 'topright' }).addTo(basemap);
 
-  //add OSM base tilelayer
-  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {         
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-  }).addTo(basemap);
+    //add OSM base tilelayer
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {         
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(basemap);
 
-  //call getData function
-  getData(basemap);
+    //call getData function
+    getData(basemap);
 
-	const search = new GeoSearch.GeoSearchControl({
-  	provider: new GeoSearch.OpenStreetMapProvider(),
-    //added marker and popup to highlight search address
-  	showMarker: true,
-    showPopup: true,
-    retainZoomLevel: true, 
-    animateZoom: true,
-    autoClose: false,
-    searchLabel: 'Enter Search Address',
-    keepResult: false,
-  });
+    const search = new GeoSearch.GeoSearchControl({
+        provider: new GeoSearch.OpenStreetMapProvider(),
+        // style: 'bar',
+        showMarker: true,
+        showPopup: true,
+        retainZoomLevel: true, 
+        animateZoom: true,
+        autoClose: false,
+        searchLabel: 'Enter Search Address',
+        keepResult: false,
+    });
 
   basemap.addControl(search);
  
@@ -42,6 +43,7 @@ function getData(basemap){
             //add symbols and UI elements
             createBusStops(response, attributes);
             parseRoutes(response, attributes);
+            createPanelControls(attributes);
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
                 dataType: "json",
                 success: function(response){
@@ -163,7 +165,7 @@ function createBusRoutes(data){
 
     var style = {
         color: "#1f355a",
-        weight: 1,
+        weight: 2,
         opacity: 1
     };
 
@@ -179,5 +181,36 @@ function createPopupContent(properties, attribute){
 
     return popupContent;
 };
+
+/* Panel */
+// 1. Add panel--Completed 4/28/21
+// 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes
+// 3. Add event handlers for buttons
+// 4. Filter out bus routes and stops outside search criteria
+
+
+//Create new panel controls
+function createPanelControls(attributes){   
+    var PanelControl = L.Control.extend({
+        options: {
+            position: 'topleft'
+        },
+
+        onAdd: function () {
+            // create the control container div with a particular class name
+            var container = L.DomUtil.create('div', 'panel-control-container');
+
+            //disable any mouse event listeners for the container
+            L.DomEvent.disableClickPropagation(container);
+
+            return container;
+        }
+
+    });
+
+    basemap.addControl(new PanelControl());    // add listeners after adding control}
+
+};
+
 
 $(document).ready(createMap);
