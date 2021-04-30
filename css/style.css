@@ -20,9 +20,10 @@
     padding: 10px;
     position: relative;
     font-size: 300%;
-    line-height: 20px;
+    line-height: 30px;
     text-align: center;
     border: solid gray 5px;
+    font-family: "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times, serif;
 }
 
 .infor-control-container {
@@ -31,9 +32,11 @@
     background-color: rgba(255,255,255,0.8);
     padding: 10px;
     position: relative;
+    font-size: 110%;
     line-height: 45px;
     text-align: center;
     border: solid gray 1px;
+    font-family: "Times New Roman", Times, serif;
 }
 
 .pop-control-container {
@@ -42,7 +45,9 @@
     background-color: rgba(255,255,255,0.8);
     padding: 10px;
     position: relative;
+    font-size: 120%;
     line-height: 45px;
     text-align: center;
     border: solid gray 1px;
+    font-family: "Times New Roman", Times, serif;
 }
