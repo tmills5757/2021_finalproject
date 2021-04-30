@@ -4,7 +4,7 @@ var basemap;
 function createMap(){
 
     basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
-    new L.Control.Zoom({ position: 'topleft' }).addTo(basemap);
+    new L.Control.Zoom({ position: 'bottomleft' }).addTo(basemap);
 
     //add OSM base tilelayer
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -24,6 +24,7 @@ function createMap(){
         autoClose: false,
         searchLabel: 'Enter Search Address',
         keepResult: false,
+        position: 'topleft'
     });
 
   basemap.addControl(search);
@@ -44,7 +45,6 @@ function getData(basemap){
             createBusStops(response, attributes);
             parseRoutes(response, attributes);
             createTitle();
-            createPanelControls(attributes);
             createInfo();
             createPop();
 
@@ -191,30 +191,6 @@ function createPopupContent(properties, attribute){
 // 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes
 // 3. Add event handlers for buttons
 // 4. Filter out bus routes and stops outside search criteria
-
-//Create new panel controls
-function createPanelControls(attributes){
-    var PanelControl = L.Control.extend({
-        options: {//declares position of the legend container
-            position: 'topleft'
-        },
-
-        onAdd: function () {
-            // create the control container div with a particular class name
-            var container = L.DomUtil.create('div', 'panel-control-container');
-
-            //disable any mouse event listeners for the container
-            L.DomEvent.disableClickPropagation(container);
-
-            return container;
-        }
-
-    });
-
-    basemap.addControl(new PanelControl());    // add listeners after adding control}
-
-};
-
 
 //function to create a title for the map
 function createTitle(){
