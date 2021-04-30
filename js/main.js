@@ -1,9 +1,12 @@
 //declare basemap variable in global scope
 var basemap;
 var pointLayer;
+<<<<<<< Updated upstream
 var busRoutes;
 var route;
 
+=======
+>>>>>>> Stashed changes
 //create map
 function createMap(){
 
@@ -17,6 +20,7 @@ function createMap(){
 
     //call getData function
     getData(basemap);
+<<<<<<< Updated upstream
     search2();
 };
 
@@ -25,6 +29,16 @@ function search(data){
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
         showMarker: true,
+=======
+    search();
+    search2();
+};
+function search(){
+    const search = new GeoSearch.GeoSearchControl({
+        provider: new GeoSearch.OpenStreetMapProvider(),
+        // style: 'bar',
+        showMarker: false,
+>>>>>>> Stashed changes
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -44,12 +58,16 @@ function search(data){
             [pos, pos2], 5);
         if (res.length) {
             document.getElementById('me').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
+<<<<<<< Updated upstream
             selectBusStop(res[0].layer.feature, data)
+=======
+>>>>>>> Stashed changes
             basemap.setView(res[0].layer.getLatLng(), 100);
             for(i=0; i<res.length; i++) {
                 basemap.addLayer(res[i].layer);
             }
         } else {
+<<<<<<< Updated upstream
             document.getElementById('me').innerHTML = 'You aren\'t in Madison';
         }
 
@@ -78,11 +96,22 @@ function selectBusStop(busstop){
 
 }
 
+=======
+            document.getElementById('me').innerHTML = 'You aren\'t in America';
+        }
+    });
+}
+
+>>>>>>> Stashed changes
 function search2(){
     const search2 = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
+<<<<<<< Updated upstream
         showMarker: true,
+=======
+        showMarker: false,
+>>>>>>> Stashed changes
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -107,7 +136,11 @@ function search2(){
                 basemap.addLayer(res[i].layer);
             }
         } else {
+<<<<<<< Updated upstream
             document.getElementById('me2').innerHTML = 'You aren\'t in Madisn';
+=======
+            document.getElementById('me2').innerHTML = 'You aren\'t in America';
+>>>>>>> Stashed changes
         }
     });
 }
@@ -348,5 +381,6 @@ function createPop(){
     basemap.addControl(new PanelControl());
 
 };
+
 
 $(document).ready(createMap);
