@@ -1,5 +1,9 @@
 //declare basemap variable in global scope
 var basemap;
+var pointLayer;
+var busRoutes;
+var route;
+
 //create map
 function createMap(){
 
@@ -13,23 +17,100 @@ function createMap(){
 
     //call getData function
     getData(basemap);
+    search2();
+};
 
+function search(data){
     const search = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
         showMarker: true,
-        showPopup: true,
+        showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
         autoClose: false,
-        searchLabel: 'Enter Search Address',
+        searchLabel: 'Enter Starting Address',
         keepResult: false,
-        position: 'topleft'
     });
 
   basemap.addControl(search);
+  //basemap.on('geosearch/showlocation', function (result) {
+    //L.marker([result.location.x, result.location.y]).addTo(basemap)
+    //});
+  basemap.on('geosearch/showlocation', function (result) {
+    pos = result.location.x
+    pos2 = result.location.y
+    var res = leafletKnn(pointLayer).nearest(
+            [pos, pos2], 5);
+        if (res.length) {
+            document.getElementById('me').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
+            selectBusStop(res[0].layer.feature, data)
+            basemap.setView(res[0].layer.getLatLng(), 100);
+            for(i=0; i<res.length; i++) {
+                basemap.addLayer(res[i].layer);
+            }
+        } else {
+            document.getElementById('me').innerHTML = 'You aren\'t in Madison';
+        }
 
-};
+    });
+
+}
+
+
+function selectBusStop(busstop){
+    console.log(busstop);
+    console.log(busRoutes);
+    console.log(route);
+    for (route in busRoutes){
+       console.log(route);
+    };
+
+    var geojsonLayer = L.geoJson(route,{
+    onEachFeature: function(feature, layer) {
+        layer._leaflet_id = feature.id;                                    
+    }});
+    geojsonLayer.addTo(map);
+
+    feature = geojsonLayer.getLayer(12345); //your feature id here
+    alert(feature.feature.id);
+//})
+
+}
+
+function search2(){
+    const search2 = new GeoSearch.GeoSearchControl({
+        provider: new GeoSearch.OpenStreetMapProvider(),
+        // style: 'bar',
+        showMarker: true,
+        showPopup: false,
+        retainZoomLevel: true,
+        animateZoom: true,
+        autoClose: false,
+        searchLabel: 'Enter Final Destination Address',
+        keepResult: false,
+    });
+
+  basemap.addControl(search2);
+  //basemap.on('geosearch/showlocation', function (result) {
+    //L.marker([result.location.x, result.location.y]).addTo(basemap)
+    //});
+  basemap.on('geosearch/showlocation', function (result) {
+    pos = result.location.x
+    pos2 = result.location.y
+    var res = leafletKnn(pointLayer).nearest(
+            [pos, pos2], 5);
+        if (res.length) {
+            document.getElementById('me2').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
+            basemap.setView(res[0].layer.getLatLng(), 100);
+            for(i=0; i<res.length; i++) {
+                basemap.addLayer(res[i].layer);
+            }
+        } else {
+            document.getElementById('me2').innerHTML = 'You aren\'t in Madisn';
+        }
+    });
+}
 
 
 //Import GeoJSON data
@@ -38,7 +119,6 @@ function getData(basemap){
     $.ajax("data/Metro_Transit_Bus_Stops.geojson", {
         dataType: "json",
         success: function(response){
-
             //create an attributes array
             var attributes = processStopData(response);
             //add symbols and UI elements
@@ -54,13 +134,17 @@ function getData(basemap){
                     //create an attributes array
                     var attributes = processRouteData(response);
                     //add symbols and UI elements
+                    
                     createBusRoutes(response, attributes);
+                    var searchRoute = search(response);
                 }
             });
         }
     });
 
 };
+
+
 
 //build an attributes array from the data
 function processRouteData(data){
@@ -146,15 +230,15 @@ function pointToLayer(feature, latlng, attributes){
 
 //Add circle markers for point features to the map
 function createBusStops(data, attributes){
-
     //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(data, {
+    pointLayer = L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         }
     }).addTo(basemap);
-
+    return pointLayer;
 };
+
 
 //Add bus routes to map
 function createBusRoutes(data){
@@ -178,11 +262,10 @@ function createBusRoutes(data){
         };
 
         //create a Leaflet GeoJSON layer and add it to the map
-        L.geoJson(route, {style: style}).addTo(basemap);
-
+        var route = L.geoJson(route, {style: style}).addTo(basemap);
+    
     };
-
-    console.log(busRoutes);
+    
 
 };
 
