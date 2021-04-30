@@ -112,7 +112,6 @@ function parseRoutes(data) {
         servedRoutes.push(routes);
         busStops.push(servedRoutes);
     }
-    console.log(busStops);
 
     return busStops;
 };
@@ -124,7 +123,7 @@ function pointToLayer(feature, latlng, attributes){
 
     //create marker options
     var options = {
-        fillColor: "#1f355a",
+        fillColor: "#fff",
         color: "#000",
         weight: 1,
         opacity: 1,
@@ -160,21 +159,30 @@ function createBusStops(data, attributes){
 //Add bus routes to map
 function createBusRoutes(data){
     //create a new array for all the bus routes
-    var busRoutes = [];
+    var busRoutes = {};
 
     for (i in data.features) {
         var route = data.features[i];
-        busRoutes.push(route);
-    }
+        var service = route.properties.Service.split(", ");
+        
+        var routeDict = {
+            route_name: route.properties.route_shor,
+            service: service
+        };
+        busRoutes[i] = routeDict;
 
-    var style = {
-        color: "#1f355a",
-        weight: 2,
-        opacity: 1
+        var style = {
+            color: route.properties.Color,
+            weight: 2,
+            opacity: 1
+        };
+
+        //create a Leaflet GeoJSON layer and add it to the map
+        L.geoJson(route, {style: style}).addTo(basemap);
+
     };
 
-    //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(busRoutes, {style: style}).addTo(basemap);
+    console.log(busRoutes);
 
 };
 
