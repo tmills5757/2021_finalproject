@@ -300,9 +300,9 @@ function createPanelControls(attr, feat){
             for (i in attr) {
                 $(container).append(`<button class="route">${attr[i].route_name}</button>`);
                 //try to make route buttons different colors
+                //create id for each route button
             }
             
-
             return container;
         }
 
@@ -315,31 +315,22 @@ function createPanelControls(attr, feat){
 
         //filter bus routes by service type
         if ($(this).attr('id') == 'weekday'){
-            //display bus stops with weekday service
             removeRouteFeatures();
-            
+            //display bus stops with weekday service
             routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
             function weekdayFilter(feature) {
-                //console.log(feature);
             if (feature.properties.Service.indexOf("Weekday") != -1) return true
             }
-            
-            console.log("Weekday");
         } else if ($(this).attr('id') == 'weekend'){
-            //display bus stops with weekend service
             removeRouteFeatures();
-            
+            //display bus stops with weekend service
             routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
             function weekendFilter(feature) {
-                //console.log(feature);
             if (feature.properties.Service.indexOf("Weekend") != -1) return true
             }
-            console.log("Weekend");
         } else if ($(this).attr('id') == 'holiday') {
-            //display bus stops with holiday service
-
             removeRouteFeatures();
-            
+            //display bus stops with holiday service
             routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
             function holidayFilter(feature) {
                 //console.log(feature);
@@ -349,6 +340,11 @@ function createPanelControls(attr, feat){
         }
 
 
+    });
+
+    //click listener for route buttons
+    $(".route").click(function() {
+        //displays selected route
     });
 
 };
