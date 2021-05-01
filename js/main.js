@@ -1,6 +1,8 @@
 //declare basemap variable in global scope
 var basemap;
 var pointLayer;
+var routeAttr = {}; //route attributes
+var routeFeat = {}; //route features
 //create map
 function createMap(){
 
@@ -86,7 +88,6 @@ function search2(){
 
 
 //Import GeoJSON data
-//Import GeoJSON data
 function getData(basemap){
     //load the data
     $.ajax("data/Metro_Transit_Bus_Stops.geojson", {
@@ -107,9 +108,10 @@ function getData(basemap){
                 success: function(response){
                     //create an attributes array
                     var attributes = processRouteData(response);
-                    createPanelControls(createBusRoutes(response));
+                    routeAttr, routeFeat = createBusRoutes(response);
+                    createPanelControls(routeAttr);
                     //add symbols and UI elements
-                    addBusRoutes(response, attributes);
+                    createRouteFeatures(routeFeat);
                 }
             });
         }
@@ -214,41 +216,47 @@ function addBusStops(data, attributes){
 };
 
 function createBusRoutes(data){
-    //create a new array for all the bus routes
-    var busRoutes = {};
+    //blank objects to store bus route data
+    routeAttr = {};
+    routeFeat = {};
 
     for (i in data.features) {
         var route = data.features[i];
-        //console.log(route);
+
         var service = route.properties.Service.split(", ");
         
-        var routeDict = {
+        var routeData = {
             route_name: route.properties.route_shor,
             service: service,
             color: route.properties.Color
         };
-        busRoutes[i] = routeDict;
+        routeAttr[i] = routeData;
+        routeFeat[i] = route;
     };
 
-    return busRoutes;
+    return routeAttr, routeFeat;
 
 };
 
 //Add bus routes to map
-function addBusRoutes(data) {
-    for (i in data.features) {
-        var route = data.features[i];
+function createRouteFeatures(features) {
+    for (i in features) {
+        var route = features[i];
         var style = {
             color: route.properties.Color,
             weight: 2,
             opacity: 1
         };
 
-    //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(route, {style: style}).addTo(basemap);
+        //create a Leaflet GeoJSON layer and add it to the map
+        L.geoJson(route, {style: style}).addTo(basemap); //adds each route as a separate layer
 
     };
 };
+
+function updateRouteFeatures(data) {
+
+}
 
 function createPopupContent(properties, attribute){
     var popupContent = "<p><b>Stop name:</b> " + properties.stop_name + "</p>"; //bus stop name
@@ -260,7 +268,7 @@ function createPopupContent(properties, attribute){
 
 /* Panel */
 // 1. Add panel--Completed 4/28/21
-// 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes
+// 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes--Completed 4/30/21
 // 3. Add event handlers for buttons
 // 4. Filter out bus routes and stops outside search criteria
 
@@ -284,12 +292,7 @@ function createPanelControls(data){
 
             for (i in data) {
                 $(container).append(`<button class="route">${data[i].route_name}</button>`);
-                $(".route").css("background-color", "red");
-                //$($(".route"[i]).css({"background-color": `${data[i].color}`}));
-                //console.log($($(".route").css("background-color")));
-            }
-            for (i in data) {
-                
+                //try to make route buttons different colors
             }
             
 
@@ -298,7 +301,25 @@ function createPanelControls(data){
 
     });
 
-    basemap.addControl(new PanelControl());    // add listeners after adding control}
+    basemap.addControl(new PanelControl());    // add listeners after adding control
+
+    //click listener for buttons
+    $('.service').click(function(){
+
+        //increment or decrement depending on button clicked
+        if ($(this).attr('id') == 'weekday'){
+            //display bus stops with weekday service
+            console.log("Weekday");
+        } else if ($(this).attr('id') == 'weekend'){
+            //display bus stops with weekend service
+            console.log("Weekend");
+        } else if ($(this).attr('id') == 'holiday') {
+            //display bus stops with holiday service
+            console.log("Holiday");
+        }
+
+
+    });
 
 };
 
