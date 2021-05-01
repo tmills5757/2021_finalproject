@@ -1,12 +1,6 @@
 //declare basemap variable in global scope
 var basemap;
 var pointLayer;
-<<<<<<< Updated upstream
-var busRoutes;
-var route;
-
-=======
->>>>>>> Stashed changes
 //create map
 function createMap(){
 
@@ -20,16 +14,6 @@ function createMap(){
 
     //call getData function
     getData(basemap);
-<<<<<<< Updated upstream
-    search2();
-};
-
-function search(data){
-    const search = new GeoSearch.GeoSearchControl({
-        provider: new GeoSearch.OpenStreetMapProvider(),
-        // style: 'bar',
-        showMarker: true,
-=======
     search();
     search2();
 };
@@ -38,7 +22,6 @@ function search(){
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
         showMarker: false,
->>>>>>> Stashed changes
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -58,60 +41,21 @@ function search(){
             [pos, pos2], 5);
         if (res.length) {
             document.getElementById('me').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
-<<<<<<< Updated upstream
-            selectBusStop(res[0].layer.feature, data)
-=======
->>>>>>> Stashed changes
             basemap.setView(res[0].layer.getLatLng(), 100);
             for(i=0; i<res.length; i++) {
                 basemap.addLayer(res[i].layer);
             }
         } else {
-<<<<<<< Updated upstream
-            document.getElementById('me').innerHTML = 'You aren\'t in Madison';
-        }
-
-    });
-
-}
-
-
-function selectBusStop(busstop){
-    console.log(busstop);
-    console.log(busRoutes);
-    console.log(route);
-    for (route in busRoutes){
-       console.log(route);
-    };
-
-    var geojsonLayer = L.geoJson(route,{
-    onEachFeature: function(feature, layer) {
-        layer._leaflet_id = feature.id;                                    
-    }});
-    geojsonLayer.addTo(map);
-
-    feature = geojsonLayer.getLayer(12345); //your feature id here
-    alert(feature.feature.id);
-//})
-
-}
-
-=======
             document.getElementById('me').innerHTML = 'You aren\'t in America';
         }
     });
 }
 
->>>>>>> Stashed changes
 function search2(){
     const search2 = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
-<<<<<<< Updated upstream
-        showMarker: true,
-=======
         showMarker: false,
->>>>>>> Stashed changes
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -136,27 +80,25 @@ function search2(){
                 basemap.addLayer(res[i].layer);
             }
         } else {
-<<<<<<< Updated upstream
-            document.getElementById('me2').innerHTML = 'You aren\'t in Madisn';
-=======
             document.getElementById('me2').innerHTML = 'You aren\'t in America';
->>>>>>> Stashed changes
         }
     });
 }
 
 
 //Import GeoJSON data
+//Import GeoJSON data
 function getData(basemap){
     //load the data
     $.ajax("data/Metro_Transit_Bus_Stops.geojson", {
         dataType: "json",
         success: function(response){
+
             //create an attributes array
             var attributes = processStopData(response);
             //add symbols and UI elements
-            createBusStops(response, attributes);
-            parseRoutes(response, attributes);
+            addBusStops(response, attributes);
+            parseRoutes(response);
             createTitle();
             createInfo();
             createPop();
@@ -166,10 +108,9 @@ function getData(basemap){
                 success: function(response){
                     //create an attributes array
                     var attributes = processRouteData(response);
+                    createPanelControls(createBusRoutes(response));
                     //add symbols and UI elements
-                    
-                    createBusRoutes(response, attributes);
-                    var searchRoute = search(response);
+                    addBusRoutes(response, attributes);
                 }
             });
         }
@@ -262,44 +203,52 @@ function pointToLayer(feature, latlng, attributes){
 };
 
 //Add circle markers for point features to the map
-function createBusStops(data, attributes){
+function addBusStops(data, attributes){
+
     //create a Leaflet GeoJSON layer and add it to the map
-    pointLayer = L.geoJson(data, {
+    L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         }
     }).addTo(basemap);
-    return pointLayer;
+
 };
 
-
-//Add bus routes to map
 function createBusRoutes(data){
     //create a new array for all the bus routes
     var busRoutes = {};
 
     for (i in data.features) {
         var route = data.features[i];
+        //console.log(route);
         var service = route.properties.Service.split(", ");
         
         var routeDict = {
             route_name: route.properties.route_shor,
-            service: service
+            service: service,
+            color: route.properties.Color
         };
         busRoutes[i] = routeDict;
+    };
 
+    return busRoutes;
+
+};
+
+//Add bus routes to map
+function addBusRoutes(data) {
+    for (i in data.features) {
+        var route = data.features[i];
         var style = {
             color: route.properties.Color,
             weight: 2,
             opacity: 1
         };
 
-        //create a Leaflet GeoJSON layer and add it to the map
-        var route = L.geoJson(route, {style: style}).addTo(basemap);
-    
-    };
-    
+    //create a Leaflet GeoJSON layer and add it to the map
+    L.geoJson(route, {style: style}).addTo(basemap);
 
+    };
 };
 
 function createPopupContent(properties, attribute){
@@ -315,6 +264,44 @@ function createPopupContent(properties, attribute){
 // 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes
 // 3. Add event handlers for buttons
 // 4. Filter out bus routes and stops outside search criteria
+
+//Create new panel controls
+function createPanelControls(data){
+    var PanelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'topleft'
+        },
+
+        onAdd: function () {
+            // create the control container div with a particular class name
+            var container = L.DomUtil.create('div', 'panel-control-container');
+
+            //disable any mouse event listeners for the container
+            L.DomEvent.disableClickPropagation(container);
+
+            $(container).append('<button class="service" id="weekday">Weekday</button>');
+            $(container).append('<button class="service" id="weekend">Weekend</button>');
+            $(container).append('<button class="service" id="holiday">Holiday</button>');
+
+            for (i in data) {
+                $(container).append(`<button class="route">${data[i].route_name}</button>`);
+                $(".route").css("background-color", "red");
+                //$($(".route"[i]).css({"background-color": `${data[i].color}`}));
+                //console.log($($(".route").css("background-color")));
+            }
+            for (i in data) {
+                
+            }
+            
+
+            return container;
+        }
+
+    });
+
+    basemap.addControl(new PanelControl());    // add listeners after adding control}
+
+};
 
 //function to create a title for the map
 function createTitle(){
