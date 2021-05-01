@@ -2,7 +2,8 @@
 var basemap;
 var pointLayer;
 var routeAttr = {}; //route attributes
-var routeFeat = {}; //route features
+var routeFeat; //route features
+var routeGeoJSON;
 //create map
 function createMap(){
 
@@ -109,7 +110,7 @@ function getData(basemap){
                     //create an attributes array
                     var attributes = processRouteData(response);
                     routeAttr, routeFeat = createBusRoutes(response);
-                    createPanelControls(routeAttr);
+                    createPanelControls(routeAttr, routeFeat);
                     //add symbols and UI elements
                     createRouteFeatures(routeFeat);
                 }
@@ -218,7 +219,7 @@ function addBusStops(data, attributes){
 function createBusRoutes(data){
     //blank objects to store bus route data
     routeAttr = {};
-    routeFeat = {};
+    routeFeat = data.features;
 
     for (i in data.features) {
         var route = data.features[i];
@@ -231,15 +232,19 @@ function createBusRoutes(data){
             color: route.properties.Color
         };
         routeAttr[i] = routeData;
-        routeFeat[i] = route;
     };
 
+    //console.log(routeFeat);
     return routeAttr, routeFeat;
 
 };
 
 //Add bus routes to map
 function createRouteFeatures(features) {
+    routeGeoJSON = L.geoJson(features);
+    routeGeoJSON.addTo(basemap);
+
+    /*
     for (i in features) {
         var route = features[i];
         var style = {
@@ -252,10 +257,12 @@ function createRouteFeatures(features) {
         L.geoJson(route, {style: style}).addTo(basemap); //adds each route as a separate layer
 
     };
+    */
+    
 };
 
-function updateRouteFeatures(data) {
-
+function removeRouteFeatures() {
+    basemap.removeLayer(routeGeoJSON);
 }
 
 function createPopupContent(properties, attribute){
@@ -273,7 +280,7 @@ function createPopupContent(properties, attribute){
 // 4. Filter out bus routes and stops outside search criteria
 
 //Create new panel controls
-function createPanelControls(data){
+function createPanelControls(attr, feat){
     var PanelControl = L.Control.extend({
         options: {//declares position of the legend container
             position: 'topleft'
@@ -290,8 +297,8 @@ function createPanelControls(data){
             $(container).append('<button class="service" id="weekend">Weekend</button>');
             $(container).append('<button class="service" id="holiday">Holiday</button>');
 
-            for (i in data) {
-                $(container).append(`<button class="route">${data[i].route_name}</button>`);
+            for (i in attr) {
+                $(container).append(`<button class="route">${attr[i].route_name}</button>`);
                 //try to make route buttons different colors
             }
             
@@ -303,18 +310,41 @@ function createPanelControls(data){
 
     basemap.addControl(new PanelControl());    // add listeners after adding control
 
-    //click listener for buttons
+    //click listener for service buttons
     $('.service').click(function(){
 
-        //increment or decrement depending on button clicked
+        //filter bus routes by service type
         if ($(this).attr('id') == 'weekday'){
             //display bus stops with weekday service
+            removeRouteFeatures();
+            
+            routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
+            function weekdayFilter(feature) {
+                //console.log(feature);
+            if (feature.properties.Service.indexOf("Weekday") != -1) return true
+            }
+            
             console.log("Weekday");
         } else if ($(this).attr('id') == 'weekend'){
             //display bus stops with weekend service
+            removeRouteFeatures();
+            
+            routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
+            function weekendFilter(feature) {
+                //console.log(feature);
+            if (feature.properties.Service.indexOf("Weekend") != -1) return true
+            }
             console.log("Weekend");
         } else if ($(this).attr('id') == 'holiday') {
             //display bus stops with holiday service
+
+            removeRouteFeatures();
+            
+            routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
+            function holidayFilter(feature) {
+                //console.log(feature);
+            if (feature.properties.Service.indexOf("Holiday") != -1) return true
+            }
             console.log("Holiday");
         }
 
