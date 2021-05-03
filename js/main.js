@@ -246,10 +246,15 @@ function createRouteFeatures(features) {
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
+        console.log(popupContent);
         layer.bindPopup(popupContent);
     }
-
-    routeGeoJSON = L.geoJson(features, {onEachFeature: onEachFeature}).addTo(basemap);
+    
+    routeGeoJSON = L.geoJson(features, 
+        {style: function(feature) {
+            return {color: feature.properties.Color};
+        }, onEachFeature: onEachFeature
+    }).addTo(basemap);
     
 };
 
