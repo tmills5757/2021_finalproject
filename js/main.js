@@ -24,7 +24,7 @@ function search(){
     const search = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
-        showMarker: false,
+        showMarker: true,
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -58,7 +58,7 @@ function search2(){
     const search2 = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
-        showMarker: false,
+        showMarker: true,
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -209,7 +209,7 @@ function pointToLayer(feature, latlng, attributes){
 function addBusStops(data, attributes){
 
     //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(data, {
+    pointLayer = L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         }
