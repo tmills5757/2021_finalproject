@@ -196,7 +196,7 @@ function pointToLayer(feature, latlng, attributes){
     //create circle marker layer
     var layer = L.circleMarker(latlng, options);
 
-    var popupContent = createPopupContent(feature.properties, attribute);
+    var popupContent = createStopPopups(feature.properties, attribute);
 
     //bind the popup to the circle marker
     layer.bindPopup(popupContent, {  offset: new L.Point(0,-options.radius)    });
@@ -242,23 +242,14 @@ function createBusRoutes(data){
 
 //Add bus routes to map
 function createRouteFeatures(features) {
-    routeGeoJSON = L.geoJson(features);
-    routeGeoJSON.addTo(basemap);
 
-    /*
-    for (i in features) {
-        var route = features[i];
-        var style = {
-            color: route.properties.Color,
-            weight: 2,
-            opacity: 1
-        };
+    //creates and binds popup for each feature
+    function onEachFeature(feature, layer) {
+        popupContent = createRoutePopups(feature.properties);
+        layer.bindPopup(popupContent);
+    }
 
-        //create a Leaflet GeoJSON layer and add it to the map
-        L.geoJson(route, {style: style}).addTo(basemap); //adds each route as a separate layer
-
-    };
-    */
+    routeGeoJSON = L.geoJson(features, {onEachFeature: onEachFeature}).addTo(basemap);
     
 };
 
@@ -266,13 +257,21 @@ function removeRouteFeatures() {
     basemap.removeLayer(routeGeoJSON);
 }
 
-function createPopupContent(properties, attribute){
+function createStopPopups(properties, attribute){
     var popupContent = "<p><b>Stop name:</b> " + properties.stop_name + "</p>"; //bus stop name
     popupContent += "<p><b>Routes:</b> " + properties.Route + "</p>"; //routes serving bus stop
 
 
     return popupContent;
 };
+
+function createRoutePopups(properties, attribute) {
+    var popupContent = "<p><b>Route:</b> " + properties.route_shor + "</p>"; //route number
+    popupContent += "<p><b>Service:</b> " + properties.Service + "</p>"; //route service
+    return popupContent;
+}
+
+
 
 /* Panel */
 // 1. Add panel--Completed 4/28/21
