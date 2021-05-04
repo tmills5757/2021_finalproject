@@ -235,7 +235,6 @@ function createBusRoutes(data){
         routeAttr[i] = routeData;
     };
 
-    //console.log(routeFeat);
     return routeAttr, routeFeat;
 
 };
@@ -246,7 +245,6 @@ function createRouteFeatures(features) {
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
-        console.log(popupContent);
         layer.bindPopup(popupContent);
     }
     
@@ -281,7 +279,7 @@ function createRoutePopups(properties, attribute) {
 /* Panel */
 // 1. Add panel--Completed 4/28/21
 // 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes--Completed 4/30/21
-// 3. Add event handlers for buttons
+// 3. Add event handlers for buttons--Completed 5/3/21
 // 4. Filter out bus routes and stops outside search criteria
 
 //Create new panel controls
@@ -301,11 +299,11 @@ function createPanelControls(attr, feat){
             $(container).append('<button class="service" id="weekday">Weekday</button>');
             $(container).append('<button class="service" id="weekend">Weekend</button>');
             $(container).append('<button class="service" id="holiday">Holiday</button>');
-
+            
             for (i in attr) {
-                $(container).append(`<button class="route">${attr[i].route_name}</button>`);
+                $(container).append(`<button class="route" id=${attr[i].route_name}>`
+                    + `${attr[i].route_name}</button>`);
                 //try to make route buttons different colors
-                //create id for each route button
             }
             
             return container;
@@ -338,10 +336,8 @@ function createPanelControls(attr, feat){
             //display bus stops with holiday service
             routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
             function holidayFilter(feature) {
-                //console.log(feature);
             if (feature.properties.Service.indexOf("Holiday") != -1) return true
             }
-            console.log("Holiday");
         }
 
 
@@ -349,7 +345,17 @@ function createPanelControls(attr, feat){
 
     //click listener for route buttons
     $(".route").click(function() {
-        //displays selected route
+        removeRouteFeatures();
+        for (i in attr) {
+            //filter bus route
+            if ($(this).attr('id') == attr[i].route_name) {
+                routeGeoJSON = L.geoJson(feat, {filter: routeFilter}).addTo(basemap);
+                function routeFilter(feature) {
+                    if (feature.properties.route_shor == attr[i].route_name) return true
+                }
+            }
+        }
+        
     });
 
 };

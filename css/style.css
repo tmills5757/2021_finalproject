@@ -87,7 +87,7 @@
 .route {
     transition-duration: 0.4s;
     float: left;
-    border: none;
+    border: 1px solid;
     border-radius: 50%;
     padding: 5px;
     margin: 5px;
