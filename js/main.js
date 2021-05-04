@@ -4,6 +4,8 @@ var pointLayer;
 var routeAttr = {}; //route attributes
 var routeFeat; //route features
 var routeGeoJSON;
+var searchOne;
+var searchTwo;
 //create map
 function createMap(){
 
@@ -20,11 +22,33 @@ function createMap(){
     search();
     search2();
 };
+//function to create a title for the map
+function createGeosearch(){
+
+    var PanelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'topleft'
+        },
+        onAdd: function () {
+            // create the control container with a particular class name
+            var container = L.DomUtil.create('div', 'geosearch-control-container');
+            //Add title in the box
+            $(container).append('<div class="temporalLegend">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
+
+            return container;
+        }
+    });
+    //adds previously created variable to the map
+    basemap.addControl(new PanelControl());
+
+};
+
 function search(){
+
     const search = new GeoSearch.GeoSearchControl({
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
-        showMarker: true,
+        showMarker: false,
         showPopup: false,
         retainZoomLevel: true,
         animateZoom: true,
@@ -45,14 +69,15 @@ function search(){
         if (res.length) {
             document.getElementById('me').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
             basemap.setView(res[0].layer.getLatLng(), 100);
-            for(i=0; i<res.length; i++) {
-                basemap.addLayer(res[i].layer);
-            }
+            console.log(pos);            
+            L.marker([pos, pos2]).addTo(basemap);
+        
         } else {
-            document.getElementById('me').innerHTML = 'You aren\'t in America';
+            document.getElementById('me').innerHTML = 'You aren\'t in Madison';
         }
     });
 }
+
 
 function search2(){
     const search2 = new GeoSearch.GeoSearchControl({
@@ -79,14 +104,26 @@ function search2(){
         if (res.length) {
             document.getElementById('me2').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
             basemap.setView(res[0].layer.getLatLng(), 100);
+            
             for(i=0; i<res.length; i++) {
                 basemap.addLayer(res[i].layer);
             }
         } else {
-            document.getElementById('me2').innerHTML = 'You aren\'t in America';
+            document.getElementById('me2').innerHTML = 'You aren\'t in Madison';
         }
     });
 }
+
+function determineRoute (){
+
+
+
+
+
+
+}
+
+
 
 
 //Import GeoJSON data
@@ -104,6 +141,7 @@ function getData(basemap){
             createTitle();
             createInfo();
             createPop();
+            createGeosearch();
 
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
                 dataType: "json",
@@ -245,6 +283,10 @@ function createRouteFeatures(features) {
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
+<<<<<<< Updated upstream
+=======
+        
+>>>>>>> Stashed changes
         layer.bindPopup(popupContent);
     }
     
@@ -286,7 +328,7 @@ function createRoutePopups(properties, attribute) {
 function createPanelControls(attr, feat){
     var PanelControl = L.Control.extend({
         options: {//declares position of the legend container
-            position: 'topleft'
+            position: 'bottomleft'
         },
 
         onAdd: function () {

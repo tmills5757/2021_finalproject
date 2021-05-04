@@ -12,6 +12,26 @@
     text-align: center;
     line-height: 42px;
 }
+.geosearch-control-container {
+    width: 250px;
+    height: 400px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    position: relative;
+    line-height: 45px;
+    text-align: center;
+    border: solid gray 1px;
+}
+
+.geosearch {
+    transition-duration: 0.4s;
+    float: left; 
+    
+    border: 1px solid #20365b;
+    font-size: 16px;
+    width: 33%;
+  }
+
 
 .panel-control-container {
     width: 250px;
