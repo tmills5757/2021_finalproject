@@ -9,33 +9,48 @@ var searchTwo;
 //create map
 function createMap(){
 
-    basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); //centered around coordinates of Madison
+    basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); 
+    //centered around coordinates of Madison
     new L.Control.Zoom({ position: 'bottomleft' }).addTo(basemap);
 
     //add OSM base tilelayer
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+
     maxZoom: 19,
+
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
+
     }).addTo(basemap);
+
     //call getData function
+
     getData(basemap);
+
     search();
-    search2();
+
 };
 //function to create a title for the map
 function createGeosearch(){
 
     var PanelControl = L.Control.extend({
-        options: {//declares position of the legend container
+
+        options: {//declares position of the legend searcher
+
             position: 'topleft'
         },
         onAdd: function () {
-            // create the control container with a particular class name
-            var container = L.DomUtil.create('div', 'geosearch-control-container');
-            //Add title in the box
-            $(container).append('<div class="temporalLegend">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
 
-            return container;
+            // create the control searcher with a particular class name
+            var searcher = L.DomUtil.create('div', 'geosearch-control-container');
+            //Add title in the box
+            $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
+            $(searcher).append('<div class="searchResults">Search Results</div>');
+
+            $(searcher).append('<button class="geosearch" id="nearest">nearest</button>');
+
+            $(searcher).append('<button class="geosearch" id="ClearMarkers">ClearMarkers</button>');
+
+            return searcher;
         }
     });
     //adds previously created variable to the map
@@ -46,83 +61,113 @@ function createGeosearch(){
 function search(){
 
     const search = new GeoSearch.GeoSearchControl({
+
         provider: new GeoSearch.OpenStreetMapProvider(),
         // style: 'bar',
         showMarker: false,
+
         showPopup: false,
+
         retainZoomLevel: true,
+
         animateZoom: true,
+
         autoClose: false,
+
         searchLabel: 'Enter Starting Address',
+
         keepResult: false,
     });
 
   basemap.addControl(search);
-  //basemap.on('geosearch/showlocation', function (result) {
-    //L.marker([result.location.x, result.location.y]).addTo(basemap)
-    //});
-  basemap.on('geosearch/showlocation', function (result) {
+
+    basemap.on('geosearch/showlocation', function (result) {
+
     pos = result.location.x
+
     pos2 = result.location.y
-    var res = leafletKnn(pointLayer).nearest(
-            [pos, pos2], 5);
-        if (res.length) {
-            document.getElementById('me').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
-            basemap.setView(res[0].layer.getLatLng(), 100);
-            console.log(pos);            
-            L.marker([pos, pos2]).addTo(basemap);
+
+    L.marker([pos2, pos]).addTo(basemap);
+
+    nearestNeibor();
+
+    });
+
+
+
+}
+
+
+function nearestNeibor(){
+
+    $('.geosearch').click(function(){
+    latlngs = [];
+
+    basemap.eachLayer(function (layer) {
+
+    if (layer instanceof L.Marker){
+
+        //var car = layer.getLatLng();
+
+        latlngs.push(layer.getLatLng());
+
         
-        } else {
-            document.getElementById('me').innerHTML = 'You aren\'t in Madison';
         }
     });
-}
 
+    determineRoutes(latlngs);
 
-function search2(){
-    const search2 = new GeoSearch.GeoSearchControl({
-        provider: new GeoSearch.OpenStreetMapProvider(),
-        // style: 'bar',
-        showMarker: true,
-        showPopup: false,
-        retainZoomLevel: true,
-        animateZoom: true,
-        autoClose: false,
-        searchLabel: 'Enter Final Destination Address',
-        keepResult: false,
-    });
-
-  basemap.addControl(search2);
-  //basemap.on('geosearch/showlocation', function (result) {
-    //L.marker([result.location.x, result.location.y]).addTo(basemap)
-    //});
-  basemap.on('geosearch/showlocation', function (result) {
-    pos = result.location.x
-    pos2 = result.location.y
-    var res = leafletKnn(pointLayer).nearest(
-            [pos, pos2], 5);
-        if (res.length) {
-            document.getElementById('me2').innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
-            basemap.setView(res[0].layer.getLatLng(), 100);
-            
-            for(i=0; i<res.length; i++) {
-                basemap.addLayer(res[i].layer);
-            }
-        } else {
-            document.getElementById('me2').innerHTML = 'You aren\'t in Madison';
-        }
     });
 }
 
-function determineRoute (){
 
 
+function determineRoutes(latlngs){
 
+    
+    
 
+    pos = latlngs[0]['lat'];
 
+    pos2 = latlngs[0]['lng'];
+
+    for (var attribute in latlngs){
+
+        var res = leafletKnn(pointLayer).nearest(
+
+                    [pos2, pos], 5);
+
+                if (res.length) {
+                    console.log('hello')
+                    //document.getElementById("basemap").innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
+                    // var targetDiv = document.getElementsByClassName("searchResults")
+                    // console.log(targetDiv);
+                    // targetDiv.innert = "<b>bold text?</b>";
+                    $(".searchResults").html("Help! This paragraph has changed!");
+                    //closestStop.push(res[0].layer.feature.properties.stop_name);
+
+                    basemap.setView(res[0].layer.getLatLng(), 100);
+
+                         
+
+                
+                } 
+
+                else {
+
+                    document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
+                }
+
+       }
 
 }
 
+function removeMarkers(){
+    $('.geosearch').click(function(){
+
+});
+
+}
 
 
 
@@ -283,10 +328,7 @@ function createRouteFeatures(features) {
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
-<<<<<<< Updated upstream
-=======
-        
->>>>>>> Stashed changes
+
         layer.bindPopup(popupContent);
     }
     

@@ -50,7 +50,7 @@ function createGeosearch(){
             var searcher = L.DomUtil.create('div', 'geosearch-control-container');
             //Add title in the box
             $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
-            $(searcher).append('<div class="searchResults"></div>');
+            $(searcher).append('<div class="searchResults">Search Results</div>');
 
             $(searcher).append('<button class="geosearch" id="nearest">nearest</button>');
 
@@ -145,8 +145,9 @@ function determineRoutes(latlngs){
 
                 if (res.length) {
                     console.log('hello')
-                    document.getElementById("searchResults").innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
-
+                    //document.getElementById("basemap").innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
+                    var targetDiv = document.getElementById("basemap").getElementsByClassName("searchResults")
+                    targetDiv.textContent = "Goodbye world!";
                     //closestStop.push(res[0].layer.feature.properties.stop_name);
 
                     basemap.setView(res[0].layer.getLatLng(), 100);
