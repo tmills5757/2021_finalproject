@@ -2,7 +2,7 @@
 var basemap;
 var pointLayer;
 var routeAttr = {}; //route attributes
-var routeFeat; //route features
+var routeFeat; //complete list of all the route GeoJSON features
 var routeGeoJSON;
 var searchOne;
 var searchTwo;
@@ -94,7 +94,7 @@ function search(){
 
     L.marker([pos2, pos]).addTo(basemap);
 
-    nearestNeibor();
+    nearestNeighbor();
     removeMarkers();
 
     });
@@ -104,7 +104,7 @@ function search(){
 }
 
 
-function nearestNeibor(){
+function nearestNeighbor(){
 
     $('.nearest').click(function(){
     latlngs = [];
@@ -131,7 +131,7 @@ function nearestNeibor(){
 function determineRoutes(latlngs){
 
     closestStop = [];
-    route = [];
+    routeList = []; //returns combined list of routes served by each bus stop
 
     pos = latlngs[0]['lat'];
 
@@ -144,11 +144,11 @@ function determineRoutes(latlngs){
             if (res.length) {
                 $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
                 closestStop.push(res[0].layer.feature.properties.stop_name);
-                route.push(res[0].layer.feature.properties.Route);
+                var routes = res[0].layer.feature.properties.Route.split(", ");
+                for (let i = 0; i < routes.length; i++) {
+                    routeList.push(routes[i]);
+                }
                 basemap.setView(res[0].layer.getLatLng(), 100);
-
-                     
-
             
             } 
 
@@ -156,6 +156,7 @@ function determineRoutes(latlngs){
 
                 document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
             }
+    
     pos21 = latlngs[1]['lat'];
 
     pos22 = latlngs[1]['lng'];
@@ -168,12 +169,12 @@ function determineRoutes(latlngs){
                 
                 $(".searchResults2").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
                 closestStop.push(res[0].layer.feature.properties.stop_name);
-                route.push(res[0].layer.feature.properties.Route);
+                var routes = res[0].layer.feature.properties.Route.split(", ");
+                for (let i = 0; i < routes.length; i++) {
+                    routeList.push(routes[i]);
+                }
                 basemap.setView(res[0].layer.getLatLng(), 100);
 
-                     
-
-            
             } 
 
             else {
@@ -181,51 +182,45 @@ function determineRoutes(latlngs){
                 document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
             }
 
-    filterRoutes(route);
+
+    filterRoutes(routeList);
 }
 
 function removeMarkers(){
 
     $('.clearMarkers').click(function(){
 
-    basemap.eachLayer(function (layer) {
+        basemap.eachLayer(function (layer) {
 
-    if (layer instanceof L.Marker){
+        if (layer instanceof L.Marker){
 
-        //var car = layer.getLatLng();
+            //var car = layer.getLatLng();
 
-        basemap.removeLayer(layer);
+            basemap.removeLayer(layer);
+            
+            }
+        });
 
-        
-        }
     });
-
-
-});
 
 }
 
 
-function filterRoutes(route){
-    //click listener for route buttons
+function filterRoutes(routeList){
     removeRouteFeatures();
 
-    for (i in route) {
+    for (i in routeList) {
         
-        route = route[i];
+        route = routeList[i];
         //filter bus route
         for (i in routeAttr) {
-
-        if (route == routeAttr[i].route_name) {
-
-            routeGeoJSON = L.geoJson(routeFeat, {filter: routeFilter}).addTo(basemap);
-
-            function routeFilter(feature) {
-
-                if (feature.properties.route_shor == routeAttr[i].route_name) return true
+            if (route == routeAttr[i].route_name) {
+                createRouteFeatures(routeFeat, routeFilter);
+                function routeFilter(feature) {
+                    if (feature.properties.route_shor == routeAttr[i].route_name) return true
+                }
             }
         }
-    }
     }
 
 }
@@ -356,8 +351,13 @@ function addBusStops(data, attributes){
     pointLayer = L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
-        }
+        }, filter: busStopFilter
     }).addTo(basemap);
+
+    function busStopFilter(feature) {
+        if (feature.properties.Route != "None") return true
+    }
+    
 
 };
 
@@ -384,19 +384,18 @@ function createBusRoutes(data){
 };
 
 //Add bus routes to map
-function createRouteFeatures(features) {
+function createRouteFeatures(routeFeat, filter) {
 
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
-
         layer.bindPopup(popupContent);
     }
     
-    routeGeoJSON = L.geoJson(features, 
+    routeGeoJSON = L.geoJson(routeFeat, 
         {style: function(feature) {
             return {color: feature.properties.Color};
-        }, onEachFeature: onEachFeature
+        }, onEachFeature: onEachFeature, filter: filter
     }).addTo(basemap);
     
 };
@@ -408,8 +407,6 @@ function removeRouteFeatures() {
 function createStopPopups(properties, attribute){
     var popupContent = "<p><b>Stop name:</b> " + properties.stop_name + "</p>"; //bus stop name
     popupContent += "<p><b>Routes:</b> " + properties.Route + "</p>"; //routes serving bus stop
-
-
     return popupContent;
 };
 
@@ -465,21 +462,24 @@ function createPanelControls(attr, feat){
         if ($(this).attr('id') == 'weekday'){
             removeRouteFeatures();
             //display bus stops with weekday service
-            routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
+            createRouteFeatures(feat, weekdayFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
             function weekdayFilter(feature) {
             if (feature.properties.Service.indexOf("Weekday") != -1) return true
             }
         } else if ($(this).attr('id') == 'weekend'){
             removeRouteFeatures();
             //display bus stops with weekend service
-            routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
+            createRouteFeatures(feat, weekendFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
             function weekendFilter(feature) {
             if (feature.properties.Service.indexOf("Weekend") != -1) return true
             }
         } else if ($(this).attr('id') == 'holiday') {
             removeRouteFeatures();
             //display bus stops with holiday service
-            routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
+            createRouteFeatures(feat, holidayFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
             function holidayFilter(feature) {
             if (feature.properties.Service.indexOf("Holiday") != -1) return true
             }
@@ -494,7 +494,8 @@ function createPanelControls(attr, feat){
         for (i in attr) {
             //filter bus route
             if ($(this).attr('id') == attr[i].route_name) {
-                routeGeoJSON = L.geoJson(feat, {filter: routeFilter}).addTo(basemap);
+                createRouteFeatures(feat, routeFilter);
+                //routeGeoJSON = L.geoJson(feat, {filter: routeFilter}).addTo(basemap);
                 function routeFilter(feature) {
                     if (feature.properties.route_shor == attr[i].route_name) return true
                 }
