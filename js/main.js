@@ -8,9 +8,15 @@ var searchOne;
 var searchTwo;
 //create map
 function createMap(){
+<<<<<<< Updated upstream
     //creates a basemap centered around coordinates of Madison
     basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); 
     //adds a zoom control to the bottom left of the basemap
+=======
+
+    basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12);
+    //centered around coordinates of Madison
+>>>>>>> Stashed changes
     new L.Control.Zoom({ position: 'bottomleft' }).addTo(basemap);
     //add OSM base tilelayer
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -45,7 +51,11 @@ function createGeosearch(){
             var searcher = L.DomUtil.create('div', 'geosearch-control-container');
             //Adds the help indicator to the geosearch to inform user of how geosearch function works.
             $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
+<<<<<<< Updated upstream
             //Adds a container to be later appended with the search results of the nearest bus stop
+=======
+
+>>>>>>> Stashed changes
             $(searcher).append('<div class="searchResults">Search Results</div>');
             //Adds another container to be later appended wit hthe search results of the destination nearest bus stop
             $(searcher).append('<div class="searchResults2">Search Results</div>');
@@ -53,7 +63,13 @@ function createGeosearch(){
             $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
             //button to activate the clear function
             $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear</button>');
+<<<<<<< Updated upstream
             //returns the rearcher container
+=======
+
+
+
+>>>>>>> Stashed changes
             return searcher;
         }
     });
@@ -104,6 +120,7 @@ function search(){
 function nearestNeighbour(){
     //event listener for clicking on the nearest button created in geosearch. 
     $('.nearest').click(function(){
+<<<<<<< Updated upstream
         //array to store the coordinate values of the markers 
         latlngs = [];
         //.eachlayer function to iterate through the basemap layers
@@ -117,6 +134,23 @@ function nearestNeighbour(){
         //calls the determineRoutes function and sends the latlngs array
         determineRoutes(latlngs);
      });
+=======
+    latlngs = [];
+
+    basemap.eachLayer(function (layer) {
+
+    if (layer instanceof L.Marker){
+
+        //var car = layer.getLatLng();
+
+        latlngs.push(layer.getLatLng());
+
+
+        }
+    });
+
+    determineRoutes(latlngs);
+>>>>>>> Stashed changes
 
 }
 //function to determine which routes serice a selected busstop
@@ -149,20 +183,31 @@ function determineRoutes(latlngs){
                         routeList1.push(routes[i]);
                     }
                 }
+<<<<<<< Updated upstream
             //sets the basemap view after the nearest neighbour function is executed
             basemap.setView(res[0].layer.getLatLng(), 100);
             
             } 
             //if else incase the address entered is to far from madison
+=======
+                basemap.setView(res[0].layer.getLatLng(), 100);
+
+            }
+
+>>>>>>> Stashed changes
             else {
                 //sets the search results to indicate the user error
                 $(".searchResults").html('You aren\'t in Madison');
             }
+<<<<<<< Updated upstream
     //creates an empty array to store the closest stops 
     closestStop2 = [];
     //creates an empty array to store the routes
     routeList2 = []; 
     //sets position of second stop
+=======
+
+>>>>>>> Stashed changes
     pos21 = latlngs[1]['lat'];
     //sets position of the second stop
     pos22 = latlngs[1]['lng'];
@@ -172,6 +217,7 @@ function determineRoutes(latlngs){
                  [pos22, pos21], 3);
             
             if (res.length) {
+<<<<<<< Updated upstream
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
                 $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
                 //for loop to iterate through the res variable
@@ -191,6 +237,19 @@ function determineRoutes(latlngs){
             
             } 
             //if else incase the address entered is to far from madison
+=======
+
+                $(".searchResults2").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                closestStop.push(res[0].layer.feature.properties.stop_name);
+                var routes = res[0].layer.feature.properties.Route.split(", ");
+                for (let i = 0; i < routes.length; i++) {
+                    routeList.push(routes[i]);
+                }
+                basemap.setView(res[0].layer.getLatLng(), 100);
+
+            }
+
+>>>>>>> Stashed changes
             else {
                 //sets the search results to indicate the user error
                 $(".searchResults").html('You aren\'t in Madison');
@@ -204,10 +263,20 @@ function removeMarkers(){
     $('.clearMarkers').click(function(){
         //.eachlayer function to iterate through the basemap layers
         basemap.eachLayer(function (layer) {
+<<<<<<< Updated upstream
             //if statement to sort only the layers that are markers
             if (layer instanceof L.Marker){
                 //removes the selected l.marker layer
                 basemap.removeLayer(layer);
+=======
+
+        if (layer instanceof L.Marker){
+
+            //var car = layer.getLatLng();
+
+            basemap.removeLayer(layer);
+
+>>>>>>> Stashed changes
             }
         });
     });
@@ -220,6 +289,7 @@ function filterRoutes(List1, List2){
     routeList2 = List2;
     //calls the removeRotueFeatures function
     removeRouteFeatures();
+<<<<<<< Updated upstream
     //for loop to iterate through the first stops route array
     for (i in routeList1) {
         //for loop to iterate through the second stops route array
@@ -238,6 +308,18 @@ function filterRoutes(List1, List2){
                             if (feature.properties.route_shor == routeAttr[i].route_name) return true
                         }
                     }
+=======
+
+    for (i in routeList) {
+
+        route = routeList[i];
+        //filter bus route
+        for (i in routeAttr) {
+            if (route == routeAttr[i].route_name) {
+                createRouteFeatures(routeFeat, routeFilter);
+                function routeFilter(feature) {
+                    if (feature.properties.route_shor == routeAttr[i].route_name) return true
+>>>>>>> Stashed changes
                 }
             }
         }
@@ -256,9 +338,13 @@ function getData(basemap){
             addBusStops(response, attributes);
             parseRoutes(response);
             createTitle();
+<<<<<<< Updated upstream
             createInfo();
             createPop();
             
+=======
+            createGeosearch();
+>>>>>>> Stashed changes
 
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
                 dataType: "json",
@@ -373,7 +459,7 @@ function addBusStops(data, attributes){
     function busStopFilter(feature) {
         if (feature.properties.Route != "None") return true
     }
-    
+
 
 };
 
@@ -386,7 +472,7 @@ function createBusRoutes(data){
         var route = data.features[i];
 
         var service = route.properties.Service.split(", ");
-        
+
         var routeData = {
             route_name: route.properties.route_shor,
             service: service,
@@ -407,13 +493,13 @@ function createRouteFeatures(routeFeat, filter) {
         popupContent = createRoutePopups(feature.properties);
         layer.bindPopup(popupContent);
     }
-    
-    routeGeoJSON = L.geoJson(routeFeat, 
+
+    routeGeoJSON = L.geoJson(routeFeat,
         {style: function(feature) {
             return {color: feature.properties.Color};
         }, onEachFeature: onEachFeature, filter: filter
     }).addTo(basemap);
-    
+
 };
 
 function removeRouteFeatures() {
@@ -457,13 +543,13 @@ function createPanelControls(attr, feat){
             $(container).append('<button class="service" id="weekday">Weekday</button>');
             $(container).append('<button class="service" id="weekend">Weekend</button>');
             $(container).append('<button class="service" id="holiday">Holiday</button>');
-            
+
             for (i in attr) {
                 $(container).append(`<button class="route" id=${attr[i].route_name}>`
                     + `${attr[i].route_name}</button>`);
                 //try to make route buttons different colors
             }
-            
+
             return container;
         }
 
@@ -517,7 +603,7 @@ function createPanelControls(attr, feat){
                 }
             }
         }
-        
+
     });
 
 };
@@ -544,49 +630,10 @@ function createTitle(){
 };
 
 
-//function to show how to use the map
-function createInfo(){
+function openPopup(){
+  window.location.hash = 'openModal';
+}
 
-    var PanelControl = L.Control.extend({
-        options: {//declares position of the legend container
-            position: 'topright'
-        },
-
-        onAdd: function () {
-
-            var container = L.DomUtil.create('div', 'infor-control-container');
-            //Add words on how to use the map
-            $(container).append('<div class="temporalLegend">Click on the desired bus route for weekdays, weekend, or holiday.<br>Click on a bus stop along the roads to view the bus schedule and destinations near the stop.<br>Alternatively, search for a destination using the search bar to view bus stops and routes near the destination.</div>');
-
-            return container;
-        }
-    });
-    //adds previously created variable to the map
-    basemap.addControl(new PanelControl());
-
-};
-
-//function to show what the map provides
-function createPop(){
-
-    var PanelControl = L.Control.extend({
-        options: {//declares position of the legend container
-            position: 'bottomright'
-        },
-
-        onAdd: function () {
-
-            var container = L.DomUtil.create('div', 'pop-control-container');
-            //Add information of the map
-            $(container).append('<div class="temporalLegend">1. Madison bus line routes and schedules, and locations of bus stops on each route.<br>2. Locations of grocery stores, hospitals, primary care, and social service centers.</div>');
-
-            return container;
-        }
-    });
-    //adds previously created variable to the map
-    basemap.addControl(new PanelControl());
-
-};
-
+window.onload = openPopup;
 
 $(document).ready(createMap);
