@@ -1,177 +1,246 @@
 //declare basemap variable in global scope
 var basemap;
-
 var pointLayer;
-
 var routeAttr = {}; //route attributes
-
-var routeFeat; //route features
-
+var routeFeat; //complete list of all the route GeoJSON features
 var routeGeoJSON;
-
 var searchOne;
-
 var searchTwo;
 //create map
 function createMap(){
-
+    //creates a basemap centered around coordinates of Madison
     basemap = L.map('basemap', {zoomControl: false}).setView([43.0731, -89.4012], 12); 
-    //centered around coordinates of Madison
+    //adds a zoom control to the bottom left of the basemap
     new L.Control.Zoom({ position: 'bottomleft' }).addTo(basemap);
-
     //add OSM base tilelayer
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-
+    //sets the max zoom size for the basemap
     maxZoom: 19,
-
+    //displays the attribution data
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
-
+    //adds the tileLayer to the basemap 
     }).addTo(basemap);
-
-    //call getData function
-
+    //calls the getData function on the basemap
     getData(basemap);
-
+    //Calls the search function for the geosearch component of the map
     search();
-
+    createGeosearch();
+    nearestNeighbour();
 };
 //function to create a title for the map
 function createGeosearch(){
-
-    var PanelControl = L.Control.extend({
-
-        options: {//declares position of the legend searcher
+    //merges properties of control object with geosearch contol contianer later in code
+    var searchControl = L.Control.extend({
+        //declares position of the searcher
+        options: {
 
             position: 'topleft'
         },
+        //returns dom for the control and adds the folowing lines of code
         onAdd: function () {
 
-            // create the control searcher with a particular class name
+             //following creates the geosearch control container that has a class name of div
             var searcher = L.DomUtil.create('div', 'geosearch-control-container');
-            //Add title in the box
+            //Adds the help indicator to the geosearch to inform user of how geosearch function works.
             $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
+            //Adds a container to be later appended with the search results of the nearest bus stop
             $(searcher).append('<div class="searchResults">Search Results</div>');
-
-            $(searcher).append('<button class="geosearch" id="nearest">nearest</button>');
-
-            $(searcher).append('<button class="geosearch" id="ClearMarkers">ClearMarkers</button>');
-
+            //Adds another container to be later appended wit hthe search results of the destination nearest bus stop
+            $(searcher).append('<div class="searchResults2">Search Results</div>');
+            //button to activate the nearest function
+            $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
+            //button to activate the clear function
+            $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear</button>');
+            //returns the rearcher container
             return searcher;
         }
     });
-    //adds previously created variable to the map
-    basemap.addControl(new PanelControl());
-
+    //following adds the searcher control to the basemap
+    basemap.addControl(new searchControl());
+    
 };
-
+//function to use geosearch api to find the location of a searched address. 
 function search(){
-
+    //creates a new geosearch contol from the geosearch control api
     const search = new GeoSearch.GeoSearchControl({
-
+        //sets the provider to be openstreetmap
         provider: new GeoSearch.OpenStreetMapProvider(),
-        // style: 'bar',
+        //no marker appears on the searched address
         showMarker: false,
-
+        //no Popup on the searched location
         showPopup: false,
-
+        //allows the function to zoom to the searched location
         retainZoomLevel: true,
-
+        //allows the zoom to be animated, ie smoother to make user expereince better
         animateZoom: true,
-
+        //does no close the search bar when a search is entered
         autoClose: false,
-
-        searchLabel: 'Enter Starting Address',
-
+        //sets the content of the search label as it appears before being cliked on
+        searchLabel: 'Enter Desired Address',
+        //does not keep the results of the search.
         keepResult: false,
     });
-
-  basemap.addControl(search);
-
+    //following adds the search control to the basemap
+    basemap.addControl(search);
+    //creates a listener that activates when an address is searched for
     basemap.on('geosearch/showlocation', function (result) {
+        //sets postion of latitude of searched address
+        pos = result.location.x
+        //sets position of the longitude of the searched address
+        pos2 = result.location.y
+        //adds a marker at the location of the searched address to the basemap.
+        L.marker([pos2, pos]).addTo(basemap);
+        //calls the nearest Neighbour funciton
+        //nearestNeighbour();
+        //calls the removeMarkers function
+        removeMarkers();
 
-    pos = result.location.x
-
-    pos2 = result.location.y
-
-    L.marker([pos2, pos]).addTo(basemap);
-
-    nearestNeibor();
-
-    });
-
-
+        });
 
 }
+//function to find the nearest busstops to a searched location
+function nearestNeighbour(){
+    //event listener for clicking on the nearest button created in geosearch. 
+    $('.nearest').click(function(){
+        //array to store the coordinate values of the markers 
+        console.log("nearest neighbour has been activated")
+        latlngs = [];
+        console.log(latlngs,"latlags1");
+        //.eachlayer function to iterate through the basemap layers
+        basemap.eachLayer(function (layer) {
+            //if statement to sort only the layers that are markers
+            if (layer instanceof L.Marker){
+                //following pushes the coordinates from the layer.getLatLng to the previous latlngs array
+                latlngs.push(layer.getLatLng()); 
+            }
+        });
+        console.log(latlngs,"latlags2");
+        //calls the determineRoutes function and sends the latlngs array
+        determineRoutes(latlngs);
+     });
 
+}
+//function to determine which routes serice a selected busstop
+function determineRoutes(latlngs){
+    //creates an empty array to store the closest stops 
+    closestStop1 = [];
+    //creates an empty array to store the routes
 
-function nearestNeibor(){
+    const routeList1 = [];
+    console.log(routeList1,"proto");
+    //sets position of first stop
+    pos = latlngs[0]['lat'];
+    //sets position of the second stop
+    pos2 = latlngs[0]['lng'];
+    //creates a variable and a lookup function 
+    var res = leafletKnn(pointLayer).nearest(
 
-    $('.geosearch').click(function(){
-    latlngs = [];
+                [pos2, pos], 3);
+            
+            if (res.length) {
+                $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                for (let i = 0; i < res.length; i++) {
+                    closestStop1.push(res[i].layer.feature.properties.stop_name);
+                    var routes = res[i].layer.feature.properties.Route.split(", ");
+                    console.log(routes,"myroutes");
+                    for (let i = 0; i < routes.length; i++) {
+                    routeList1.push(routes[i]);
+                    console.log(routeList1,'nesxtcurrent');
+                }
+                }
+                basemap.setView(res[0].layer.getLatLng(), 100);
+            
+            } 
 
+            else {
+
+                document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
+            }
+    console.log(routeList1,'current');
+    closestStop2 = [];
+    //creates an empty array to store the routes
+    routeList2 = []; 
+
+    pos21 = latlngs[1]['lat'];
+
+    pos22 = latlngs[1]['lng'];
+
+    var res = leafletKnn(pointLayer).nearest(
+
+                 [pos22, pos21], 3);
+            
+            if (res.length) {
+                $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                for (let i = 0; i < res.length; i++) {
+                    closestStop2.push(res[i].layer.feature.properties.stop_name);
+                    var routes = res[i].layer.feature.properties.Route.split(", ");
+                    for (let i = 0; i < routes.length; i++) {
+                    routeList2.push(routes[i]);
+                }
+                }
+                basemap.setView(res[0].layer.getLatLng(), 100);
+            
+            } 
+
+            else {
+
+                document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
+            }
+    console.log(routeList1,'start');
+    console.log(routeList2,'stop');
+    filterRoutes(routeList1, routeList2);
+}
+//function to remove the previously created markers to allow the user to search for new addresses
+function removeMarkers(){
+    //creates an event listener on the clear marker created in the geosearhc container.
+    $('.clearMarkers').click(function(){
+    //.eachlayer function to iterate through the basemap layers
     basemap.eachLayer(function (layer) {
-
+    //if statement to sort only the layers that are markers
     if (layer instanceof L.Marker){
 
-        //var car = layer.getLatLng();
+            //var car = layer.getLatLng();
 
-        latlngs.push(layer.getLatLng());
-
-        
-        }
-    });
-
-    determineRoutes(latlngs);
+            basemap.removeLayer(layer);
+            
+            }
+        });
 
     });
+
 }
 
 
+function filterRoutes(List1, List2){
+    //click listener for route buttons
+    routeList1 = List1;
+    routeList2 = List2;
+    removeRouteFeatures();
+    console.log(routeList1,'hi');
+    console.log(routeList2,'fuck');
 
-function determineRoutes(latlngs){
+    for (i in routeList1) {
+        for(i in routeList2) {
 
-    
-    
-
-    pos = latlngs[0]['lat'];
-
-    pos2 = latlngs[0]['lng'];
-
-    for (var attribute in latlngs){
-
-        var res = leafletKnn(pointLayer).nearest(
-
-                    [pos2, pos], 5);
-
-                if (res.length) {
-                    console.log('hello')
-                    //document.getElementById("basemap").innerHTML = 'Closest Stop to You is ' + res[0].layer.feature.properties.stop_name;
-                    var targetDiv = document.getElementById("basemap").getElementsByClassName("searchResults")
-                    targetDiv.textContent = "Goodbye world!";
-                    //closestStop.push(res[0].layer.feature.properties.stop_name);
-
-                    basemap.setView(res[0].layer.getLatLng(), 100);
-
-                         
-
-                
-                } 
-
-                else {
-
-                    document.getElementById('geosearch-control-container').innerHTML = 'You aren\'t in Madison';
+        if (routeList1[i]==routeList2[i]){
+            console.log(routeList1[i],'1');
+            console.log(routeList2[i],'2');
+            route = routeList1[i];
+            //filter bus route
+            for (i in routeAttr) {
+            if (route == routeAttr[i].route_name) {
+                createRouteFeatures(routeFeat, routeFilter);
+                function routeFilter(feature) {
+                    if (feature.properties.route_shor == routeAttr[i].route_name) return true
                 }
-
-       }
+            }
+        }
+    }
+    }
+}
 
 }
 
-function removeMarkers(){
-    $('.geosearch').click(function(){
-
-});
-
-}
 
 
 //Import GeoJSON data
@@ -189,7 +258,7 @@ function getData(basemap){
             createTitle();
             createInfo();
             createPop();
-            createGeosearch();
+            
 
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
                 dataType: "json",
@@ -298,8 +367,13 @@ function addBusStops(data, attributes){
     pointLayer = L.geoJson(data, {
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
-        }
+        }, filter: busStopFilter
     }).addTo(basemap);
+
+    function busStopFilter(feature) {
+        if (feature.properties.Route != "None") return true
+    }
+    
 
 };
 
@@ -321,25 +395,23 @@ function createBusRoutes(data){
         routeAttr[i] = routeData;
     };
 
-    //console.log(routeFeat);
     return routeAttr, routeFeat;
 
 };
 
 //Add bus routes to map
-function createRouteFeatures(features) {
+function createRouteFeatures(routeFeat, filter) {
 
     //creates and binds popup for each feature
     function onEachFeature(feature, layer) {
         popupContent = createRoutePopups(feature.properties);
-        
         layer.bindPopup(popupContent);
     }
     
-    routeGeoJSON = L.geoJson(features, 
+    routeGeoJSON = L.geoJson(routeFeat, 
         {style: function(feature) {
             return {color: feature.properties.Color};
-        }, onEachFeature: onEachFeature
+        }, onEachFeature: onEachFeature, filter: filter
     }).addTo(basemap);
     
 };
@@ -351,8 +423,6 @@ function removeRouteFeatures() {
 function createStopPopups(properties, attribute){
     var popupContent = "<p><b>Stop name:</b> " + properties.stop_name + "</p>"; //bus stop name
     popupContent += "<p><b>Routes:</b> " + properties.Route + "</p>"; //routes serving bus stop
-
-
     return popupContent;
 };
 
@@ -367,7 +437,7 @@ function createRoutePopups(properties, attribute) {
 /* Panel */
 // 1. Add panel--Completed 4/28/21
 // 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes--Completed 4/30/21
-// 3. Add event handlers for buttons
+// 3. Add event handlers for buttons--Completed 5/3/21
 // 4. Filter out bus routes and stops outside search criteria
 
 //Create new panel controls
@@ -387,11 +457,11 @@ function createPanelControls(attr, feat){
             $(container).append('<button class="service" id="weekday">Weekday</button>');
             $(container).append('<button class="service" id="weekend">Weekend</button>');
             $(container).append('<button class="service" id="holiday">Holiday</button>');
-
+            
             for (i in attr) {
-                $(container).append(`<button class="route">${attr[i].route_name}</button>`);
+                $(container).append(`<button class="route" id=${attr[i].route_name}>`
+                    + `${attr[i].route_name}</button>`);
                 //try to make route buttons different colors
-                //create id for each route button
             }
             
             return container;
@@ -408,26 +478,27 @@ function createPanelControls(attr, feat){
         if ($(this).attr('id') == 'weekday'){
             removeRouteFeatures();
             //display bus stops with weekday service
-            routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
+            createRouteFeatures(feat, weekdayFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: weekdayFilter}).addTo(basemap);
             function weekdayFilter(feature) {
             if (feature.properties.Service.indexOf("Weekday") != -1) return true
             }
         } else if ($(this).attr('id') == 'weekend'){
             removeRouteFeatures();
             //display bus stops with weekend service
-            routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
+            createRouteFeatures(feat, weekendFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: weekendFilter}).addTo(basemap);
             function weekendFilter(feature) {
             if (feature.properties.Service.indexOf("Weekend") != -1) return true
             }
         } else if ($(this).attr('id') == 'holiday') {
             removeRouteFeatures();
             //display bus stops with holiday service
-            routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
+            createRouteFeatures(feat, holidayFilter);
+            //routeGeoJSON = L.geoJson(feat, {filter: holidayFilter}).addTo(basemap);
             function holidayFilter(feature) {
-                //console.log(feature);
             if (feature.properties.Service.indexOf("Holiday") != -1) return true
             }
-            console.log("Holiday");
         }
 
 
@@ -435,7 +506,18 @@ function createPanelControls(attr, feat){
 
     //click listener for route buttons
     $(".route").click(function() {
-        //displays selected route
+        removeRouteFeatures();
+        for (i in attr) {
+            //filter bus route
+            if ($(this).attr('id') == attr[i].route_name) {
+                createRouteFeatures(feat, routeFilter);
+                //routeGeoJSON = L.geoJson(feat, {filter: routeFilter}).addTo(basemap);
+                function routeFilter(feature) {
+                    if (feature.properties.route_shor == attr[i].route_name) return true
+                }
+            }
+        }
+        
     });
 
 };
