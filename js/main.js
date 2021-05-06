@@ -173,7 +173,7 @@ function determineRoutes(latlngs){
             
             if (res.length) {
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
-                $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                $(".searchResults2").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
                 //for loop to iterate through the res variable
                 for (let i = 0; i < res.length; i++) {
                     //pushes the closestest stop name to the previously created array
