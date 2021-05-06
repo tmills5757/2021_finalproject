@@ -46,13 +46,15 @@ function createGeosearch(){
             //Adds the help indicator to the geosearch to inform user of how geosearch function works.
             $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
             //Adds a container to be later appended with the search results of the nearest bus stop
-            $(searcher).append('<div class="searchResults">Search Results</div>');
+            $(searcher).append('<div class="searchResults">Start destination closest stop</div>');
             //Adds another container to be later appended wit hthe search results of the destination nearest bus stop
-            $(searcher).append('<div class="searchResults2">Search Results</div>');
+            $(searcher).append('<div class="searchResults2">End destination closest stop</div>');
             //button to activate the nearest function
             $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
             //button to activate the clear function
             $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear</button>');
+            //adds a container to clarify if no routes appear for user expereince 
+            $(searcher).append('<div class="noRoutes">If no routes appear, the start and end destinations have no direct route between them</div>');
             //returns the rearcher container
             return searcher;
         }
@@ -136,7 +138,7 @@ function determineRoutes(latlngs){
             
             if (res.length) {
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
-                $(".searchResults").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                $(".searchResults").html('Closest stop to start destination is ' + res[0].layer.feature.properties.stop_name);
                 //for loop to iterate through the res variable
                 for (let i = 0; i < res.length; i++) {
                     //pushes the closestest stop name to the previously created array
@@ -173,7 +175,7 @@ function determineRoutes(latlngs){
             
             if (res.length) {
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
-                $(".searchResults2").html('Closest Stop to You is ' + res[0].layer.feature.properties.stop_name);
+                $(".searchResults2").html('Closest stop to end destination is ' + res[0].layer.feature.properties.stop_name);
                 //for loop to iterate through the res variable
                 for (let i = 0; i < res.length; i++) {
                     //pushes the closestest stop name to the previously created array
