@@ -1,5 +1,7 @@
+html,
+body,
 #basemap{
-    height: 900px;
+    height: 100%;
     width: 100%;
     display: inline-block;
     }
@@ -80,10 +82,10 @@
 
 .geosearch {
     transition-duration: 0.4s;
-    float: left; 
+    float: left;
     border: 1px solid #20365b;
     font-size: 16px;
-    
+
   }
 
 
