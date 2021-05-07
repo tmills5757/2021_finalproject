@@ -45,10 +45,6 @@ function createGeosearch(){
             var searcher = L.DomUtil.create('div', 'geosearch-control-container');
             //Adds the help indicator to the geosearch to inform user of how geosearch function works.
             $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
-            //Adds a container to be later appended with the search results of the nearest bus stop
-            $(searcher).append('<div class="searchResults">Start destination closest stop</div>');
-            //Adds another container to be later appended wit hthe search results of the destination nearest bus stop
-            $(searcher).append('<div class="searchResults2">End destination closest stop</div>');
             //button to activate the nearest function
             $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
             //button to activate the clear function
@@ -59,8 +55,29 @@ function createGeosearch(){
             return searcher;
         }
     });
+    //merges properties of control object with geosearch contol contianer later in code
+    var searchResults = L.Control.extend({
+        //declares position of the searcher
+        options: {
+
+            position: 'topleft'
+        },
+        //returns dom for the control and adds the folowing lines of code
+        onAdd: function () {
+
+             //following creates the geosearch control container that has a class name of div
+            var searcher = L.DomUtil.create('div', 'results-container');
+            //Adds a container to be later appended with the search results of the nearest bus stop
+            $(searcher).append('<div class="searchResults">Start destination: closest stop</div>');
+            //Adds another container to be later appended wit hthe search results of the destination nearest bus stop
+            $(searcher).append('<div class="searchResults2">End destination: closest stop</div>');
+            //returns the rearcher container
+            return searcher;
+        }
+    });
     //following adds the searcher control to the basemap
     basemap.addControl(new searchControl());
+    basemap.addControl(new searchResults());
 
 };
 //function to use geosearch api to find the location of a searched address.

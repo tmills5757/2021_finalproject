@@ -69,9 +69,19 @@ body,
 
 .close:hover { background: #00d9ff; }
 
+.results-container {
+    width: 250px;
+    height: 90px;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    position: relative;
+    line-height: 25px;
+    text-align: center;
+    border: solid gray 1px;
+}
 .geosearch-control-container {
     width: 250px;
-    height: 285px;
+    height: 200px;
     background-color: rgba(255,255,255,0.8);
     padding: 10px;
     position: relative;
