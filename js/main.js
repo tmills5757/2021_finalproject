@@ -27,7 +27,7 @@ function createMap(){
     //Calls the geosearch function for the geosearch container of the map
     createGeosearch();
     //calls nearest neighbour
-    nearestNeighbour();
+    //nearestNeighbour();
 };
 //function to create a title for the map
 function createGeosearch(){
@@ -98,7 +98,7 @@ function search(){
         //allows the zoom to be animated, ie smoother to make user expereince better
         animateZoom: true,
         //does no close the search bar when a search is entered
-        autoClose: false,
+        autoClose: true,
         //sets the content of the search label as it appears before being cliked on
         searchLabel: 'Enter Desired Address',
         //does not keep the results of the search.
@@ -123,7 +123,7 @@ function search(){
 
 }
 //function to find the nearest busstops to a searched location
-function nearestNeighbour(){
+function nearestNeighbour(routeFeat1){
     //event listener for clicking on the nearest button created in geosearch.
     $('.nearest').click(function(){
         //array to store the coordinate values of the markers
@@ -137,16 +137,16 @@ function nearestNeighbour(){
             }
         });
         //calls the determineRoutes function and sends the latlngs array
-        determineRoutes(latlngs);
+        determineRoutes(latlngs, routeFeat1);
      });
 
 }
 //function to determine which routes serice a selected busstop
-function determineRoutes(latlngs){
+function determineRoutes(latlngs, routeFeat1){
     //creates an empty array to store the closest stops
     closestStop1 = [];
     //creates an empty array to store the routes
-    const routeList1 = [];
+    routeList1 = [];
     //sets position of first stop
     pos = latlngs[0]['lat'];
     //sets position of the second stop
@@ -154,7 +154,7 @@ function determineRoutes(latlngs){
     //creates a variable and a lookup function
     var res = leafletKnn(pointLayer).nearest(
 
-                [pos2, pos], 5);
+                [pos2, pos], 3);
 
             if (res.length) {
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
@@ -191,7 +191,7 @@ function determineRoutes(latlngs){
     //creates a variable and a lookup function
     var res = leafletKnn(pointLayer).nearest(
 
-                 [pos22, pos21], 3);
+                 [pos22, pos21], 1);
 
             if (res.length) {
                 //jquery to alter the search results container in geosearch control container to indicate nearest stop
@@ -218,7 +218,7 @@ function determineRoutes(latlngs){
                 $(".searchResults").html('You aren\'t in Madison');
             }
     //calls the filterRoutes function and passes routeLists to it
-    filterRoutes(routeList1, routeList2);
+    filterRoutes(routeList1, routeList2, routeFeat1);
 }
 //function to remove the previously created markers to allow the user to search for new addresses
 function removeMarkers(){
@@ -235,13 +235,8 @@ function removeMarkers(){
     });
 }
 //function to remove bus routes from map that do not service both stops
-function filterRoutes(List1, List2){
-    //sets routeList1 varible to be array passed to filterRoutes
-    routeList1 = List1;
-    //sets routeList2 varible to be array passed to filterRoutes
-    routeList2 = List2;
-    //calls the removeRotueFeatures function
-    removeRouteFeatures();
+function filterRoutes(routeList1, routeList2, routeFeat1){
+    routeFeat2 = routeFeat1;
     //for loop to iterate through the first stops route array
     for (i in routeList1) {
         //for loop to iterate through the second stops route array
@@ -254,8 +249,10 @@ function filterRoutes(List1, List2){
                 for (i in routeAttr) {
                     //if statement to ensure the route is the same as one from busstop array
                     if (route == routeAttr[i].route_name) {
+                        //calls the removeRotueFeatures function
+                        removeRouteFeatures();
                         //calls the createRouteFeatures function and passes the variables indicating which route should be created
-                        createRouteFeatures(routeFeat, routeFilter);
+                        createRouteFeatures(routeFeat2, routeFilter);
                         function routeFilter(feature) {
                             if (feature.properties.route_shor == routeAttr[i].route_name) return true
                         }
@@ -278,6 +275,7 @@ function getData(basemap){
             addBusStops(response, attributes);
             parseRoutes(response);
             createTitle();
+            createCredit();
 
 
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
@@ -287,6 +285,8 @@ function getData(basemap){
                     var attributes = processRouteData(response);
                     routeAttr, routeFeat = createBusRoutes(response);
                     createPanelControls(routeAttr, routeFeat);
+                    //calls nearest neighbour
+                    nearestNeighbour(routeFeat);
                     //add symbols and UI elements
                     createRouteFeatures(routeFeat);
                 }
@@ -573,6 +573,27 @@ function createTitle(){
     });
     //adds previously created variable to the map
     basemap.addControl(new PanelControl());
+
+};
+
+//function to create a title for the map
+function createCredit(){
+
+    var panelControl = L.Control.extend({
+        options: {//declares position of the legend container
+            position: 'bottomleft'
+        },
+        onAdd: function () {
+            // create the control container with a particular class name
+            var container = L.DomUtil.create('div', 'credit-container');
+            //Add title in the box
+            $(container).append('<div class="temporalLegend">Cartographers: Tristan Mills, Jacob Yurek, Chun Pong Brian Chan. Data sources: maps.cityofmadison.com</div>');
+
+            return container;
+        }
+    });
+    //adds previously created variable to the map
+    basemap.addControl(new panelControl());
 
 };
 

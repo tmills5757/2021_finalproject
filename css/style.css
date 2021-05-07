@@ -152,6 +152,18 @@ body,
     font-weight: 600;
 }
 
+.credit-container {
+    width: 250px;
+    height: 90px;
+    background-color: #f0f0f0;
+    opacity: 0.9;
+    padding: 10px;
+    position: relative;
+    line-height: 25px;
+    text-align: center;
+    border: solid gray 1px;
+}
+
 .service {
     transition-duration: 0.4s;
     float: left;
