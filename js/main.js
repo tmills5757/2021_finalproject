@@ -587,7 +587,7 @@ function createCredit(){
             // create the control container with a particular class name
             var container = L.DomUtil.create('div', 'credit-container');
             //Add title in the box
-            $(container).append('<div class="temporalLegend">Cartographers: Tristan Mills, Jacob Yurek, Chun Pong Brian Chan. Data sources: maps.cityofmadison.com</div>');
+            $(container).append('<div class="temporalLegend">Cartographers: Tristan Mills, Jacob Yurek, Chun Pong Brian Chan.<br>Data sources: City of Madison Open Data</div>');
 
             return container;
         }
