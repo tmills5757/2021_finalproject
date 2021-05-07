@@ -432,14 +432,6 @@ function createRoutePopups(properties, attribute) {
     return popupContent;
 }
 
-
-
-/* Panel */
-// 1. Add panel--Completed 4/28/21
-// 2. Add buttons for bus routes and weekday, weekend, and holiday bus routes--Completed 4/30/21
-// 3. Add event handlers for buttons--Completed 5/3/21
-// 4. Filter out bus routes and stops outside search criteria
-
 //Create new panel controls
 function createPanelControls(attr, feat){
     var PanelControl = L.Control.extend({
@@ -459,10 +451,11 @@ function createPanelControls(attr, feat){
             $(container).append('<button class="service" id="holiday">Holiday</button>');
 
             for (i in attr) {
-                $(container).append(`<button class="route" id=${attr[i].route_name}>`
+                $(container).append(`<button class="route" id=${attr[i].route_name} style="background-color:${attr[i].color}">`
                     + `${attr[i].route_name}</button>`);
-                //try to make route buttons different colors
             }
+
+            $(container).append('<button class="reset">Reset Map</button>'); //reset button
 
             return container;
         }
@@ -518,6 +511,26 @@ function createPanelControls(attr, feat){
             }
         }
 
+    });
+
+    $(".route").mouseenter(function() {
+        for (i in attr) {
+            if ($(this).attr('id') == attr[i].route_name) {
+                $(this).css({"background-color": "white", "color": `${attr[i].color}`});
+            }
+        }
+    }).mouseleave(function() {
+        for (i in attr) {
+            if ($(this).attr('id') == attr[i].route_name) {
+                $(this).css({"background-color": `${attr[i].color}`, "color": "white"});
+            }
+        }
+    });
+
+    //click listener for reset button, resets map to display all routes
+    $(".reset").click(function() {
+        removeRouteFeatures();
+        createRouteFeatures(feat);
     });
 
 };
