@@ -17,7 +17,7 @@ body,
 
 .modalDialog {
 	position: fixed;
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -58,6 +58,7 @@ body,
 	top: -10px;
 	width: 24px;
 	text-decoration: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	font-weight: bold;
 	-webkit-border-radius: 12px;
 	-moz-border-radius: 12px;
@@ -72,7 +73,8 @@ body,
 .results-container {
     width: 250px;
     height: 90px;
-    background-color: rgba(255,255,255,0.8);
+    background-color: #f0f0f0;
+    opacity: 0.9;
     padding: 10px;
     position: relative;
     line-height: 25px;
@@ -82,11 +84,11 @@ body,
 .geosearch-control-container {
     width: 250px;
     height: 200px;
-    background-color: rgba(255,255,255,0.8);
+    background-color: #f0f0f0;
+    opacity: 0.9;
     padding: 10px;
     position: relative;
-    line-height: 25px;
-    text-align: center;
+    text-align: left;
     border: solid gray 1px;
 }
 
@@ -94,15 +96,40 @@ body,
     transition-duration: 0.4s;
     float: left;
     border: 1px solid #20365b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
-
   }
 
+.nearest {
+    transition-duration: 0.4s;
+    border: 1px solid #20365b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+    .nearest:hover {
+        background-color: #20365b;
+        border: 1px solid #20365b;
+        color: white;
+    }
+
+.clearMarkers {
+    transition-duration: 0.4s;
+    border: 1px solid #20365b;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 10px;
+}
+
+    .clearMarkers:hover {
+        background-color: #20365b;
+        border: 1px solid #20365b;
+        color: white;
+    }
 
 .panel-control-container {
     width: 250px;
     height: 350px;
-    background-color: rgba(255,255,255,0.8);
+    background-color: #f0f0f0;
+    opacity: 0.9;
     padding: 10px;
     position: relative;
     line-height: 45px;
@@ -110,71 +137,60 @@ body,
     border: solid gray 1px;
 }
 
-.title-control-container {
-    width: 490px;
-    height: 20px;
-    background-color: rgba(255,255,255,0.8);
+.title-container {
+    width: 450px;
+    height: 30px;
+    background-color: #f0f0f0;
+    opacity: 0.9;
     padding: 10px;
     position: relative;
     font-size: 300%;
     line-height: 30px;
     text-align: center;
     border: solid gray 5px;
-    font-family: "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times, serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
 }
 
 .service {
     transition-duration: 0.4s;
     float: left;
-
-    border: 1px solid #20365b;
+    border: 1px solid gray;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
     width: 33%;
   }
 
   .service:hover {
     background-color: #20365b;
-    border: 1px solid #20365b;
     color: white;
   }
-
-  .service:active {
-      background-color: #20365b;
-      border: 1px solid #20365b;
-      color: white;
-  }
-
 
 .route {
     transition-duration: 0.4s;
     float: left;
     height: 25px;
     width: 25px;
-    border: 1px solid;
+    border: none;
     border-radius: 50%;
     padding: 5px;
     margin: 5px;
     color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 100%
 }
-
-/*
-
-    .route:hover {
-        background-color: black;
-        color: white;
-        border: 1px solid;
-    }
-*/
 
 .reset {
     transition-duration: 0.4s;
-    border: 1px solid #20365b;
+    border: 1px solid gray;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
-    width: 33%;
+    width: 50%;
     }
 
     .reset:hover {
         background-color: #20365b;
-        border: 1px solid #20365b;
         color: white;
       }

@@ -43,14 +43,17 @@ function createGeosearch(){
 
              //following creates the geosearch control container that has a class name of div
             var searcher = L.DomUtil.create('div', 'geosearch-control-container');
-            //Adds the help indicator to the geosearch to inform user of how geosearch function works.
-            $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click the nearest button to find a bus route for this trip.</div>');
-            //button to activate the nearest function
-            $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
-            //button to activate the clear function
-            $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear</button>');
+            $(searcher).append('<div class="helpIndicator">Add start and end destination markers to the map by searching for them in the search bar above. Then click "Find Nearest Stops" to find a bus route for this trip.</div>');
+            $(searcher).append("<br>"); //line break
             //adds a container to clarify if no routes appear for user expereince
             $(searcher).append('<div class="noRoutes">If no routes appear, the start and end destinations have no direct route between them</div>');
+            $(searcher).append("<br>"); //line break
+            
+            //button to activate the nearest function
+            $(searcher).append('<button class="nearest" id="nearest">Find Nearest Stops</button>');
+            //button to activate the clear function
+            $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear Markers</button>');
+
             //returns the rearcher container
             return searcher;
         }
@@ -533,13 +536,13 @@ function createPanelControls(attr, feat){
     $(".route").mouseenter(function() {
         for (i in attr) {
             if ($(this).attr('id') == attr[i].route_name) {
-                $(this).css({"background-color": "white", "color": `${attr[i].color}`});
+                $(this).css({"background-color": "white", "color": `${attr[i].color}`, "border": `1px solid ${attr[i].color}`});
             }
         }
     }).mouseleave(function() {
         for (i in attr) {
             if ($(this).attr('id') == attr[i].route_name) {
-                $(this).css({"background-color": `${attr[i].color}`, "color": "white"});
+                $(this).css({"background-color": `${attr[i].color}`, "color": "white", "border": "none"});
             }
         }
     });
@@ -561,7 +564,7 @@ function createTitle(){
         },
         onAdd: function () {
             // create the control container with a particular class name
-            var container = L.DomUtil.create('div', 'title-control-container');
+            var container = L.DomUtil.create('div', 'title-container');
             //Add title in the box
             $(container).append('<div class="temporalLegend">Madison Bus Finder</div>');
 
