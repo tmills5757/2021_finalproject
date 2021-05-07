@@ -53,7 +53,7 @@ function createGeosearch(){
             $(searcher).append('<button class="nearest" id="nearest">Nearest</button>');
             //button to activate the clear function
             $(searcher).append('<button class="clearMarkers" id="clearMarkers">Clear</button>');
-            //adds a container to clarify if no routes appear for user expereince 
+            //adds a container to clarify if no routes appear for user expereince
             $(searcher).append('<div class="noRoutes">If no routes appear, the start and end destinations have no direct route between them</div>');
             //returns the rearcher container
             return searcher;
@@ -258,7 +258,6 @@ function getData(basemap){
             addBusStops(response, attributes);
             parseRoutes(response);
             createTitle();
-            createPop();
 
 
             $.ajax("data/Metro_Transit_Bus_Routes.geojson", {
@@ -445,7 +444,7 @@ function createRoutePopups(properties, attribute) {
 function createPanelControls(attr, feat){
     var PanelControl = L.Control.extend({
         options: {//declares position of the legend container
-            position: 'bottomleft'
+            position: 'bottomright'
         },
 
         onAdd: function () {
@@ -535,28 +534,6 @@ function createTitle(){
             var container = L.DomUtil.create('div', 'title-control-container');
             //Add title in the box
             $(container).append('<div class="temporalLegend">Madison Bus Finder</div>');
-
-            return container;
-        }
-    });
-    //adds previously created variable to the map
-    basemap.addControl(new PanelControl());
-
-};
-
-//function to show what the map provides
-function createPop(){
-
-    var PanelControl = L.Control.extend({
-        options: {//declares position of the legend container
-            position: 'bottomright'
-        },
-
-        onAdd: function () {
-
-            var container = L.DomUtil.create('div', 'pop-control-container');
-            //Add information of the map
-            $(container).append('<div class="temporalLegend">1. Madison bus line routes and schedules, and locations of bus stops on each route.<br>2. Locations of grocery stores, hospitals, primary care, and social service centers.</div>');
 
             return container;
         }
